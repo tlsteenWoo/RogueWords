@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RogueWordsDesktop", "RogueWords\RogueWordsDesktop.csproj", "{9E6E9225-BD14-47A1-BD44-F97B43388361}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RogueWordsDesktop", "RogueWordsDesktop\RogueWordsDesktop.csproj", "{9E6E9225-BD14-47A1-BD44-F97B43388361}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MakinGames", "..\..\..\SplitScreenDungeonAndroid\MakinGames\MakinGames\MakinGames.csproj", "{7AD14BAF-EC03-4CB0-AC02-0CDA13D4F198}"
 EndProject

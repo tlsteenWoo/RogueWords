@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.IO;
 using MknGames.Split_Screen_Dungeon;
+using Microsoft.Xna.Framework.Audio;
 
 namespace MknGames.Rogue_Words
 {
@@ -104,7 +105,7 @@ namespace MknGames.Rogue_Words
 
         //inst game
         public bool requestReset = false;
-        bool gameComplete = false;
+        bool movesExhausted = false;
         public int assuredBranchLimit = 4;
         public float vowelChance = 50;
         char[] vowels = new char[5] { 'A', 'E', 'I', 'O', 'U' };
@@ -125,6 +126,10 @@ namespace MknGames.Rogue_Words
         float noMoreWordsDuration = 2;
         float totalWordDuration = 2;
         float totalWordElapsed;
+
+        //inst sound
+        SoundEffect placeTileSfx;
+        SoundEffect chimeSfx;
 
         public BoardScreenClassic(RogueWordsGame Game, MainMenuScreenClassic main, RogueWordsScreen parent) : base(Game)
         {
@@ -317,6 +322,10 @@ namespace MknGames.Rogue_Words
                 add("xylephone");
                 add("zipper");
             }
+
+            //load sound
+            placeTileSfx = game1.Content.Load<SoundEffect>("Sounds/scrabble-place-piece-0");
+
             loaded = true;
         }
 
@@ -369,7 +378,7 @@ namespace MknGames.Rogue_Words
 
             }
             //update player
-            if (collectionTiles.Count == 0 && !gameComplete)
+            if (collectionTiles.Count == 0 && !movesExhausted)
             {
                 playerElapsed += et;
             }
@@ -394,6 +403,7 @@ namespace MknGames.Rogue_Words
                 }
                 return result;
             };
+            //update moveset
             int availableMoves = 0;
             int availableMoveStartI = game1.rand.Next(playerMoves.Length);
             for (int i = 0; i < playerMoves.Length; ++i)
@@ -420,14 +430,10 @@ namespace MknGames.Rogue_Words
                 requestForcedMove = true;
             }
             requestMoveElimination = false;
-            // game over
-            if (availableMoves == 0 && chainTiles.Count > 0)
+            // update moves exhausted
+            if (!movesExhausted && availableMoves == 0 && chainTiles.Count > 0)
             {
-                Collect(0);
-                gameComplete = true;
-                //requestReset = true;
-                drawReview = true;
-                WriteSettings();
+                OnMovesExhausted((object)this, new EventArgs());
             }
             Point oldPosition = new Point(playerX, playerY);
             if (game1.kclick(Keys.Right))
@@ -462,7 +468,7 @@ namespace MknGames.Rogue_Words
                 requestReset = false;
 
                 //reset game
-                gameComplete = false;
+                movesExhausted = false;
 
                 //reset score
                 scoreHigh = Math.Max(score, scoreHigh);
@@ -547,6 +553,7 @@ namespace MknGames.Rogue_Words
             //update chain
             if (requestConsumeCurrentTile)
             {
+                placeTileSfx.Play();
                 Tile T = boardTiles[playerX, playerY];
                 T.consumed = true;
                 T.chain = 0;
@@ -582,6 +589,7 @@ namespace MknGames.Rogue_Words
                     //}
                     Collect(1);
                     UpdateWordPotential(dictionary[chainWord[0]]);
+                    OnWordCompleted((object)this, new EventArgs());
                 }
                 
             }
@@ -668,6 +676,29 @@ namespace MknGames.Rogue_Words
                 }
             }
         }
+
+        private void OnMovesExhausted(object v, EventArgs eventArgs)
+        {
+            Collect(0);
+            movesExhausted = true;
+            //requestReset = true;
+            drawReview = true;
+            WriteSettings();
+            if (false)
+            {
+                requestReset = true;
+                collectionLength = 0;// game1.randf(0.25f);
+                vowelChance = game1.rand.Next(100);
+                assuredBranchLimit = game1.rand.Next(5);
+                SetSize(game1.rand.Next(1, 30), game1.rand.Next(1, 30));
+            }
+        }
+
+        private void OnWordCompleted(object v, EventArgs eventArgs)
+        {
+            noMoreWordsElapsed = noMoreWordsDuration;
+        }
+
         //pull letter
         public char PullLetter(string potentialWord = null)
         {
@@ -898,7 +929,7 @@ namespace MknGames.Rogue_Words
             }
 
             //draw player
-            if (!gameComplete)
+            if (!movesExhausted)
             {
                 float progress = playerElapsed / playerDeadline;
                 float radius = (tileW / 2) * (1 - progress);
