@@ -850,6 +850,7 @@ namespace MknGames.Rogue_Words
                 if (container.Top > playRect.Top) container.Y -= container.Top - playRect.Top;
                 if (container.Bottom < playRect.Bottom) container.Y -= container.Bottom - playRect.Bottom;
             }
+
             Vector2 tileOffset = container.Location.ToVector2() + tileSize/2;
             // draw tiles
             Vector2[] tileCorners = new Vector2[4] {
@@ -1018,7 +1019,10 @@ namespace MknGames.Rogue_Words
             middleRect.Width -= scoreRect.Width;
             middleRect.Width -= multiplierRect.Width;
             middleRect.X += scoreRect.Width;
-            if (middleRect.ContainsPoint(mainMenu.pointer()) && mainMenu.pointerTap())
+            Rectf returnBtn = Backpack.percentagef(middleRect, 0f, 0.25f, 0.2f, .5f);
+            game1.drawSquare(returnBtn, monochrome(0.2f), 0);
+            game1.drawStringf(game1.defaultLargerFont, "back", returnBtn, monochrome(1.0f), new Vector2(0.5f), true, 1);
+            if (returnBtn.ContainsPoint(mainMenu.pointer()) && mainMenu.pointerTap())
             {
                 rwg.activeScreen = parentScreen;
             }
