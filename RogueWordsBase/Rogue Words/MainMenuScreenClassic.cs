@@ -46,7 +46,7 @@ namespace MknGames.Rogue_Words
         public override void LoadContent()
         {
             base.LoadContent();
-#if false
+#if true
             //viewportFull = new Viewport(0,0,395, 702);
             //game1.graphics.PreferredBackBufferWidth = viewportFull.Width;
             //game1.graphics.PreferredBackBufferHeight = viewportFull.Height;

@@ -42,6 +42,7 @@ namespace MknGames.Rogue_Words
 
         //inst potential
         List<string> potentialWords = new List<string>();
+        int lastPotentialWordCount;
 
         //inst scoring
         int currentCombo = 0;
@@ -129,7 +130,9 @@ namespace MknGames.Rogue_Words
 
         //inst sound
         SoundEffect placeTileSfx;
-        SoundEffect chimeSfx;
+        SoundEffect bellSfx;
+        SoundEffect pickupSfx;
+        SoundEffect echoSfx;
 
         public BoardScreenClassic(RogueWordsGame Game, MainMenuScreenClassic main, RogueWordsScreen parent) : base(Game)
         {
@@ -285,17 +288,19 @@ namespace MknGames.Rogue_Words
             } //end if loadFromFile
             else
             {
-                for (int i = 0; i < 26; ++i)
-                {
-                    dictionary.Add((char)(i + 65), new Dictionary<int, List<string>>());
-                }
                 Action<string> add = (string word) =>
                 {
+                    if(!dictionary.ContainsKey(word[0]))
+                    {
+                        dictionary.Add(char.ToUpper(word[0]), new Dictionary<int, List<string>>());
+                    }
                     var charcountTable = dictionary[char.ToUpper(word[0])];
                     if (charcountTable.ContainsKey(word.Length) == false)
                         charcountTable.Add(word.Length, new List<string>());
                     charcountTable[word.Length].Add(word.ToUpper());
                 };
+                add("dropwisp");
+                /*
                 add("APPLE");
                 add("BOUNCE");
                 add("cat");
@@ -320,11 +325,14 @@ namespace MknGames.Rogue_Words
                 add("varsity");
                 add("whetstone");
                 add("xylephone");
-                add("zipper");
+                add("zipper");*/
             }
 
             //load sound
             placeTileSfx = game1.Content.Load<SoundEffect>("Sounds/scrabble-place-piece-0");
+            bellSfx= game1.Content.Load<SoundEffect>("Sounds/bells");
+            echoSfx= game1.Content.Load<SoundEffect>("Sounds/bells-echo");
+            pickupSfx= game1.Content.Load<SoundEffect>("Sounds/scrabble-place-rack");
 
             loaded = true;
         }
@@ -463,6 +471,7 @@ namespace MknGames.Rogue_Words
                 requestReset = true;
             }
             bool requestConsumeCurrentTile = false;
+            // on reset
             if (requestReset) // reset
             {
                 requestReset = false;
@@ -476,6 +485,7 @@ namespace MknGames.Rogue_Words
 
                 //reset potential
                 potentialWords.Clear();
+                lastPotentialWordCount = 0;
 
                 //reset chain (this must be reset before PullLetter is called again)
                 chainTiles.Clear();
@@ -504,7 +514,10 @@ namespace MknGames.Rogue_Words
                 oldPosition.X = playerX;
                 oldPosition.Y = playerY;
                 requestConsumeCurrentTile = true;
-                boardTiles[playerX, playerY].letter = PullLetter();
+
+                var randCharTable = dictionary[dictionary.Keys.ElementAt(game1.rand.Next(dictionary.Keys.Count))];
+                var randCharCountTable = randCharTable[randCharTable.Keys.ElementAt(game1.rand.Next(randCharTable.Keys.Count))];
+                boardTiles[playerX, playerY].letter = randCharCountTable[game1.rand.Next(randCharCountTable.Count)][0];
 
                 playerElapsed = 0;
 
@@ -572,6 +585,9 @@ namespace MknGames.Rogue_Words
                             t.chain++;
                         }
                         currentCombo++;
+                        //post word found
+                        //float pitch = ComboToPitch(currentCombo);
+                        //bellSfx.Play(1, pitch, 0);
                     }
                 }
                 
@@ -587,9 +603,10 @@ namespace MknGames.Rogue_Words
                     //    totalWordElapsed = 0;
                     //    score += 25;
                     //}
+                    //pre word finish
                     Collect(1);
                     UpdateWordPotential(dictionary[chainWord[0]]);
-                    OnWordCompleted((object)this, new EventArgs());
+                    noMoreWordsElapsed = noMoreWordsDuration;
                 }
                 
             }
@@ -603,6 +620,7 @@ namespace MknGames.Rogue_Words
                     Tile t = collectionTiles.Dequeue();
                     t.chain = -1;
                     score += t.value * t.collectionMultiplier;
+                    OnPostTileCollected((object)this, new EventArgs());
                 }
                 collectionElapsed += et;
             }
@@ -677,6 +695,21 @@ namespace MknGames.Rogue_Words
             }
         }
 
+        private void OnPostTileCollected(object v, EventArgs eventArgs)
+        {
+            pickupSfx.Play();
+        }
+
+        public float ComboToPitch(int combo)
+        {
+            float v = (float)combo / 6.0f;
+            if(v > 5.0f/6f)
+            {
+                v = 5.0f / 6f + v / 10f;
+            }
+            return MathHelper.Lerp(-0.5f, 1.0f, v);
+        }
+
         private void OnMovesExhausted(object v, EventArgs eventArgs)
         {
             Collect(0);
@@ -694,11 +727,6 @@ namespace MknGames.Rogue_Words
             }
         }
 
-        private void OnWordCompleted(object v, EventArgs eventArgs)
-        {
-            noMoreWordsElapsed = noMoreWordsDuration;
-        }
-
         //pull letter
         public char PullLetter(string potentialWord = null)
         {
@@ -707,11 +735,14 @@ namespace MknGames.Rogue_Words
                 return potentialWord[chainWord.Length];
             }
             if (game1.rand.Next(100) < vowelChance)
+            {
                 return vowels[game1.rand.Next(vowels.Length)];
-            return (char)(65 + game1.rand.Next(26));
+            }
+            return dictionary.Keys.ElementAt(game1.rand.Next(dictionary.Keys.Count));
         }
         public void UpdateWordPotential(Dictionary<int, List<string>> charcountTable)
         {
+            lastPotentialWordCount = potentialWords.Count;
             potentialWords.Clear();
             int s = game1.rand.Next(charcountTable.Keys.Count); //starting index
             for (int i = 0; i < charcountTable.Keys.Count; ++i) //use for loop to iterate
