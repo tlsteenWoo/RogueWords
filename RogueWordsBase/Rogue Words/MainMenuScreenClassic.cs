@@ -44,6 +44,9 @@ namespace MknGames.Rogue_Words
         //inst tap location
         Vector2 pointerTapLocation;
 
+        //inst discovery
+        Rectf discoveryBanner;
+
         public MainMenuScreenClassic(RogueWordsGame Game) : base(Game)
         {
             board = new BoardScreenClassic(Game, this, this);
@@ -90,6 +93,7 @@ namespace MknGames.Rogue_Words
             game1.graphics.PreferredBackBufferHeight = GraphicsDevice.DisplayMode.TitleSafeArea.Height;
             game1.graphics.ApplyChanges();
 #endif
+            discoveryBanner = Banner(7);
         }
 
         public override void OnBackPressed()
@@ -114,7 +118,7 @@ namespace MknGames.Rogue_Words
             {
                 Vector2 offset = pointerRaw() - pointerTapLocation;
                 scrollOffset = initialScrollOffset + offset.Y;
-                float min = 0;
+                float min = -discoveryBanner.Height;
                 float max = ViewportRect.Height;
                 float top = scrollOffset;
                 float bottom = (float)ViewportRect.Height + scrollOffset;
@@ -172,6 +176,10 @@ namespace MknGames.Rogue_Words
             if (/*!dialogDrawing && */Banner(7).Contains(pointer()) && pointerTap())
             {
                 drawCredits = true;
+            }
+            if(pointerRelease() && discoveryBanner.ContainsPoint(pointer()))
+            {
+
             }
 
             //update spritebatch matrix
@@ -269,6 +277,7 @@ namespace MknGames.Rogue_Words
             }
             DrawBanner("Customize", 6);
             DrawBanner("Credits", 7);
+            DrawBanner("Discovered", 8);
             if (drawHowToPlay && Dialog("How To Play",
 @"
 1. Make words 
@@ -376,15 +385,18 @@ verbatim.
         {
             return Backpack.percentage(ViewportRect, 0, index / 8f, 1, 1f / 8f);
         }
-        public void DrawBanner(string text, float index)
+        public void DrawBanner(string text, float index, Rectangle rect)
         {
-            Rectangle r = Banner(index);
             Color bannerc = monochrome(0.4f);
             if (index % 2 == 1)
                 bannerc = monochrome(0.3f);
-            game1.drawSquare(r, bannerc, 0);
-            Rectangle txtr = Backpack.percentage(r, 0, 0.25f, 1, 0.5f);
+            game1.drawSquare(rect, bannerc, 0);
+            Rectangle txtr = Backpack.percentage(rect, 0, 0.25f, 1, 0.5f);
             game1.drawString(game1.defaultLargerFont, text, txtr, monochrome(1.0f), new Vector2(0.9f, 0.5f), true, 0.8f);
+        }
+        public void DrawBanner(string text, float index)
+        {
+            DrawBanner(text, index, Banner(index));
         }
         public void DrawDebug()
         {
