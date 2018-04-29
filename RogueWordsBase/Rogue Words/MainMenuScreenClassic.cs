@@ -114,6 +114,14 @@ namespace MknGames.Rogue_Words
             {
                 Vector2 offset = pointerRaw() - pointerTapLocation;
                 scrollOffset = initialScrollOffset + offset.Y;
+                float min = 0;
+                float max = ViewportRect.Height;
+                float top = scrollOffset;
+                float bottom = (float)ViewportRect.Height + scrollOffset;
+                if (top < min)
+                    scrollOffset += min - top;
+                if (bottom > max)
+                    scrollOffset += max - bottom;
             }
 
             // tap play
