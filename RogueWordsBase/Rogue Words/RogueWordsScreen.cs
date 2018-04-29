@@ -62,7 +62,7 @@ namespace MknGames.Rogue_Words
 
         public Vector2 pointer()
         {
-            return Vector2.Transform(pointerRaw(), spritebatchMatrix);
+            return Vector2.Transform(pointerRaw(), Matrix.Invert(spritebatchMatrix));
         }
 
         public Vector2 pointerRaw()

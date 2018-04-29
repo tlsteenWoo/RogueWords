@@ -50,7 +50,8 @@ namespace MknGames
 
             float et = (float)gameTime.ElapsedGameTime.TotalSeconds;
             activeScreen.Update(gameTime, et);
-            game1.debugSquare(Rectf.CreateCentered(activeScreen.pointer(), 50, 50), Color.Red, 0);
+            //game1.debugSquare(Rectf.CreateCentered(activeScreen.pointer(), 5, 5), Color.Green, 0);
+            //game1.debugSquare(Rectf.CreateCentered(activeScreen.pointerRaw(), 5, 5), Color.Blue, 0);
         }
         public override void Draw(GameTime gameTime)
         {
@@ -58,7 +59,6 @@ namespace MknGames
 
             game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied,null,null,null,null, activeScreen.spritebatchMatrix);
             activeScreen.Draw(gameTime, game1.spriteBatch);
-            game1.drawSquare(game1.mousePosition, Color.Red, 0, 10, 10);
             game1.DrawDebugSquares();
             game1.spriteBatch.End();
 

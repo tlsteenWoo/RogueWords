@@ -867,7 +867,7 @@ namespace MknGames.Rogue_Words
                 Vector2.Normalize(new Vector2(0,-1))
             };
             guiPointerReleaseTile = null; // reset gui pointer release tile
-            if(mainMenu.pointerUp() && mainMenu.pointerUpOld())
+            if(pointerUp() && pointerUpOld())
                 guiPointerTapTile = null;
             for (int x = 0; x < mapW; ++x)
             {
@@ -936,13 +936,13 @@ namespace MknGames.Rogue_Words
 
                         //draw value
                         Rectangle r = game1.centeredRect(pos, tileW, tileH);
-                        if(mainMenu.pointerRelease() && r.Contains(mainMenu.pointer()))
+                        if(pointerRelease() && r.Contains(pointer()))
                         {
                             guiPointerReleaseTile = T;
                             guiPointerReleaseTileCoord.X = x;
                             guiPointerReleaseTileCoord.Y = y;
                         }
-                        if (mainMenu.pointerTap() && r.Contains(mainMenu.pointer()))
+                        if (pointerTap() && r.Contains(pointer()))
                         {
                             guiPointerTapTile = T;
                             guiPointerTapTileCoord.X = x;
@@ -993,7 +993,7 @@ namespace MknGames.Rogue_Words
                             currentCombo == 5 ? Color.Red :
                             Color.Magenta;
             game1.drawStringf(game1.defaultLargerFont, currentCombo + "x", multirtxt, multic, new Vector2(0.25f), true);
-            if(mainMenu.pointerTap() && multiplierRect.ContainsPoint( mainMenu.pointer()))
+            if(pointerTap() && multiplierRect.ContainsPoint( pointer()))
             {
                 requestReset = true;
             }
@@ -1011,7 +1011,7 @@ namespace MknGames.Rogue_Words
             }
             Rectangle scoreRectTxt = Split_Screen_Dungeon.Backpack.percentage(scoreRect, 0, 0.3f, 1, 0.4f);
             game1.drawString(game1.defaultLargerFont, "" + score, scoreRectTxt, monochrome(0), new Vector2(0.75f,0), true);
-            if (scoreRect.Contains(mainMenu.pointer()) && mainMenu.pointerTap())
+            if (scoreRect.Contains(pointer()) && pointerTap())
             {
                 drawReview = !drawReview;
             }
@@ -1023,7 +1023,7 @@ namespace MknGames.Rogue_Words
             Rectf returnBtn = Backpack.percentagef(middleRect, 0f, 0.25f, 0.2f, .5f);
             game1.drawSquare(returnBtn, monochrome(0.2f), 0);
             game1.drawStringf(game1.defaultLargerFont, "back", returnBtn, monochrome(1.0f), new Vector2(0.5f), true, 1);
-            if (returnBtn.ContainsPoint(mainMenu.pointer()) && mainMenu.pointerTap())
+            if (returnBtn.ContainsPoint(pointer()) && pointerTap())
             {
                 rwg.activeScreen = parentScreen;
             }

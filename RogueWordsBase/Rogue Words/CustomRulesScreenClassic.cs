@@ -44,7 +44,7 @@ namespace MknGames.Rogue_Words
             game1.drawSquare(titler, monochrome(grayv), 0);
             float whitev = 1.0f;
             game1.drawString(game1.defaultLargerFont, "return", titler, monochrome(whitev), Vector2.Zero, true, 0.8f);
-            if(titler.Contains(mainMenu.pointer()) && mainMenu.pointerTap())
+            if(titler.Contains(pointer()) && pointerTap())
             {
                 board.WriteSettings();
                 rwg.activeScreen = mainMenu;
@@ -61,9 +61,9 @@ namespace MknGames.Rogue_Words
                 string text = f == 0 ? "Vowel Chance" : f == 1 ? "Assured Branches" : "Move Time Limit";
                 game1.drawString(game1.defaultLargerFont, text, topr, monochrome(whitev), new Vector2(0, 0.5f), true);
                 Rectangle bottomr = Split_Screen_Dungeon.Backpack.percentage(sliderr, 0, 0.5f, 0.4f, 0.5f);
-                if(mainMenu.pointerDown() && bottomr.Contains(mainMenu.pointer()))
+                if(pointerDown() && bottomr.Contains(pointer()))
                 {
-                    float dx = mainMenu.pointer().X - bottomr.Left;
+                    float dx = pointer().X - bottomr.Left;
                     float xp = dx / (float)bottomr.Width;
                     if (f == 0)
                         board.vowelChance = (int)Math.Round(xp * 100);
@@ -92,7 +92,7 @@ namespace MknGames.Rogue_Words
             game1.drawSquare(playr, monochrome(darkv), 0);
             Rectangle playrtxt = Split_Screen_Dungeon.Backpack.percentage(playr, 0, 0.3f, 1, 0.4f);
             game1.drawString(game1.defaultLargerFont, "Play Custom Rules!", playrtxt, monochrome(whitev), new Vector2(1, 0.5f), true);
-            if(mainMenu.pointerTap() && playr.Contains(mainMenu.pointer()))
+            if(pointerTap() && playr.Contains(pointer()))
             {
                 board.parentScreen = this;
                 board.WriteSettings();
