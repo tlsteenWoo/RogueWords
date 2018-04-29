@@ -34,8 +34,15 @@ namespace MknGames.Rogue_Words
         //    "Medium",
         //    "Large"
         //};
-        
+
         //bool dialogDrawing = false;
+
+        //inst scroll
+        float scrollOffset;
+        float initialScrollOffset;
+
+        //inst tap location
+        Vector2 pointerTapLocation;
 
         public MainMenuScreenClassic(RogueWordsGame Game) : base(Game)
         {
@@ -85,63 +92,6 @@ namespace MknGames.Rogue_Words
 #endif
         }
 
-        public Vector2 pointer()
-        {
-            if (game1.touchesCurrent.Count > 0)
-            {
-                return game1.touchesCurrent[0].Position;
-            }
-            return game1.mousePosition;
-        }
-
-        public bool pointerTap()
-        {
-            if (game1.touchesCurrent.Count > 0)
-            {
-                return game1.touchesCurrent[0].State == Microsoft.Xna.Framework.Input.Touch.TouchLocationState.Pressed;
-            }
-            return pointerDown() && pointerUpOld();
-        }
-
-        public bool pointerRelease()
-        {
-            if(game1.touchesCurrent.Count > 0)
-            {
-                return game1.touchesCurrent[0].State == Microsoft.Xna.Framework.Input.Touch.TouchLocationState.Released;
-            }
-            return pointerUp() && pointerDownOld();
-        }
-
-        public bool pointerDown()
-        {
-            if (game1.touchesCurrent.Count > 0)
-            {
-                return game1.touchesCurrent[0].State != Microsoft.Xna.Framework.Input.Touch.TouchLocationState.Released &&
-                    game1.touchesCurrent[0].State != Microsoft.Xna.Framework.Input.Touch.TouchLocationState.Invalid;
-            }
-            return game1.lmouse;
-        }
-
-        public bool pointerUp()
-        {
-            return !pointerDown();
-        }
-
-        public bool pointerDownOld()
-        {
-            if (game1.touchesCurrent.Count > 0)
-            {
-                return game1.touchesOld[0].State != Microsoft.Xna.Framework.Input.Touch.TouchLocationState.Released &&
-                    game1.touchesOld[0].State != Microsoft.Xna.Framework.Input.Touch.TouchLocationState.Invalid;
-            }
-            return game1.lmouseOld;
-        }
-
-        public bool pointerUpOld()
-        {
-            return !pointerDownOld();
-        }
-
         public override void OnBackPressed()
         {
             base.OnBackPressed();
@@ -151,6 +101,20 @@ namespace MknGames.Rogue_Words
         public override void Update(GameTime gameTime, float et)
         {
             base.Update(gameTime, et);
+
+            // update input
+            if(pointerTap())
+            {
+                pointerTapLocation = pointerRaw();
+                initialScrollOffset = scrollOffset;
+            }
+
+            //update scroll
+            if(pointerDown())
+            {
+                Vector2 offset = pointerRaw() - pointerTapLocation;
+                scrollOffset = initialScrollOffset + offset.Y;
+            }
 
             // tap play
             if (Banner(1).Contains(pointer()) && pointerTap())
@@ -201,6 +165,9 @@ namespace MknGames.Rogue_Words
             {
                 drawCredits = true;
             }
+
+            //update spritebatch matrix
+            spritebatchMatrix = Matrix.CreateTranslation(0, scrollOffset, 0);
         }
         public void ApplyBoardSize()
         {
@@ -221,6 +188,7 @@ namespace MknGames.Rogue_Words
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             base.Draw(gameTime, spriteBatch);
+
             //dialogDrawing = false;
             //draw title
             Rectangle titleRect = Banner(0);

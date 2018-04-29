@@ -815,6 +815,7 @@ namespace MknGames.Rogue_Words
 
             base.Draw(gameTime, spriteBatch);
 
+
             float et = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             game1.GraphicsDevice.Clear(Color.Magenta);
