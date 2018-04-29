@@ -71,8 +71,8 @@ namespace MknGames.Rogue_Words
                 //nexus 10: 2560 x 1600
                 //64.5" sony KD-65ZD9: 3840x2160
                 //Tagital t6 watch: 240x240
-                float resX = 1440;
-                float resY = 2560;
+                float resX = 2560;
+                float resY = 1600;
                 float ratio = Math.Min(1, desiredHeight / resY);
                 pbbw = (int)(resX * ratio);
                 pbbh = (int)(resY * ratio);
