@@ -14,6 +14,7 @@ namespace MknGames.Rogue_Words
     {
         protected RogueWordsGame rwg;
         public Matrix spritebatchMatrix = Matrix.Identity;
+        public bool loadContentComplete;
         protected GameMG game1
         {
             get { return rwg.game1; }
@@ -37,7 +38,7 @@ namespace MknGames.Rogue_Words
 
         public virtual void LoadContent()
         {
-
+            loadContentComplete = true;
         }
 
         public virtual void Update(GameTime gameTime, float et)

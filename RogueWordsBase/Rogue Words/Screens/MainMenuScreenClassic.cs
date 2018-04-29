@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MknGames.Split_Screen_Dungeon;
+using RogueWordsBase.Rogue_Words.Screens;
 
 namespace MknGames.Rogue_Words
 {
@@ -13,6 +14,7 @@ namespace MknGames.Rogue_Words
     {
         public BoardScreenClassic board;
         CustomRulesScreenClassic custom;
+        DiscoveredWordsScreen discovered;
         //public Viewport viewportFull;
         bool drawHowToPlay = false;
         bool drawCredits = false;
@@ -51,6 +53,7 @@ namespace MknGames.Rogue_Words
         {
             board = new BoardScreenClassic(Game, this, this);
             custom = new CustomRulesScreenClassic(Game, this);
+            discovered = new DiscoveredWordsScreen(Game);
         }
 
         public override void LoadContent()
@@ -179,7 +182,8 @@ namespace MknGames.Rogue_Words
             }
             if(pointerRelease() && discoveryBanner.ContainsPoint(pointer()))
             {
-
+                discovered.parent = this;
+                rwg.SwitchToScreen(discovered);
             }
 
             //update spritebatch matrix
@@ -277,7 +281,7 @@ namespace MknGames.Rogue_Words
             }
             DrawBanner("Customize", 6);
             DrawBanner("Credits", 7);
-            DrawBanner("Discovered", 8);
+            DrawBanner("Discovered", 8, discoveryBanner);
             if (drawHowToPlay && Dialog("How To Play",
 @"
 1. Make words 

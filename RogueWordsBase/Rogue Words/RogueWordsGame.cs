@@ -29,6 +29,13 @@ namespace MknGames
             game1.Exiting += GameMG_Exiting;
         }
 
+        public void SwitchToScreen(RogueWordsScreen screen)
+        {
+            if (screen.loadContentComplete == false)
+                screen.LoadContent();
+            activeScreen = screen;
+        }
+
         private void GameMG_Exiting(object sender, EventArgs e)
         {
             //throw new NotImplementedException();

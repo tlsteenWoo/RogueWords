@@ -47,16 +47,17 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rogue Words\BoardLogicClassic.cs" />
-    <Compile Include="Rogue Words\BoardScreen.cs" />
+    <Compile Include="Rogue Words\Screens\BoardScreen.cs" />
     <Compile Include="Rogue Words\BoardScreenClassic.cs" />
-    <Compile Include="Rogue Words\CustomRulesScreenClassic.cs" />
-    <Compile Include="Rogue Words\MainMenuScreenClassic.cs" />
+    <Compile Include="Rogue Words\Screens\CustomRulesScreenClassic.cs" />
+    <Compile Include="Rogue Words\Screens\DiscoveredWordsScreen.cs" />
+    <Compile Include="Rogue Words\Screens\MainMenuScreenClassic.cs" />
     <Compile Include="Rogue Words\MenuScreen.cs" />
-    <Compile Include="Rogue Words\PlayScreenClassic.cs" />
+    <Compile Include="Rogue Words\Screens\PlayScreenClassic.cs" />
     <Compile Include="Rogue Words\RogueWordBrain.cs" />
     <Compile Include="Rogue Words\RogueWordsGame.cs" />
     <Compile Include="Rogue Words\RogueWordsGameMG.cs" />
-    <Compile Include="Rogue Words\RogueWordsScreen.cs" />
+    <Compile Include="Rogue Words\Screens\RogueWordsScreen.cs" />
     <Compile Include="Rogue Words\WordListProcessor.cs" />
   </ItemGroup>
   <ItemGroup>
