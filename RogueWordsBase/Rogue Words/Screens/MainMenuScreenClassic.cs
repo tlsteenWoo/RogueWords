@@ -19,6 +19,7 @@ namespace MknGames.Rogue_Words
         //public Viewport viewportFull;
         bool drawHowToPlay = false;
         bool drawCredits = false;
+        bool dialogDrawing = false;
 
         //inst options
         int difficulty = 2;
@@ -112,7 +113,7 @@ namespace MknGames.Rogue_Words
 
             // tap play
             float scrollCutoff = 4;
-            if (!ScrollingOccurred() && pointerRelease())
+            if (!ScrollingOccurred() && pointerRelease() && !dialogDrawing)
             {
                 if (Banner(1).Contains(pointer()))
                 {
@@ -196,7 +197,7 @@ namespace MknGames.Rogue_Words
         {
             base.Draw(gameTime, spriteBatch);
 
-            //dialogDrawing = false;
+            dialogDrawing = false;
             //draw title
             Rectangle titleRect = Banner(0);
             Rectangle titleRectA = Backpack.percentage(titleRect, 0, 0, 1f, 4f / 6f);
@@ -357,7 +358,7 @@ https://www.noswearing.com/
         }
         public bool Dialog(string titleText, string bodyText, string buttonText)
         {
-            //dialogDrawing = true;
+            dialogDrawing = true;
             bool result = false;
             Rectf drawRect = CalculateTransformedViewportRectf();
             float edge = Backpack.percentageH(drawRect, 1f / 20f) / 2;

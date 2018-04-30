@@ -25,6 +25,7 @@ namespace MknGames.Rogue_Words
 
         //inst tap location
         public Vector2 pointerTapLocation;
+        public Vector2 pointerReleaseOffset;
 
         protected GameMG game1
         {
@@ -78,8 +79,8 @@ namespace MknGames.Rogue_Words
             //update scroll
             if (verticalScrollEnabled && pointerDown())
             {
-                Vector2 offset = pointerRaw() - pointerTapLocation;
-                scrollOffset = initialScrollOffset - offset;
+                pointerReleaseOffset = pointerRaw() - pointerTapLocation;
+                scrollOffset = initialScrollOffset - pointerReleaseOffset;
                 Rectf viewRectf = ViewportRect;
                 viewRectf.X += scrollOffset.X;
                 viewRectf.Y += scrollOffset.Y;
@@ -99,8 +100,13 @@ namespace MknGames.Rogue_Words
 
         public bool ScrollingOccurred()
         {
-            float cutoff = 10;
-            return (scrollOffset - initialScrollOffset).LengthSquared() > cutoff * cutoff;
+            float cutoff = 20;
+            if (verticalScrollEnabled && Math.Abs(pointerReleaseOffset.Y) > cutoff)
+                return true;
+            if (horizontalScrollEnabled && Math.Abs(pointerReleaseOffset.X) > cutoff)
+                return true;
+            //return (scrollOffset - initialScrollOffset).LengthSquared() > cutoff * cutoff;
+            return false;
         }
 
         public static bool charIntStringsContains(Dictionary<char, Dictionary<int, List<string>>> table, string word)
