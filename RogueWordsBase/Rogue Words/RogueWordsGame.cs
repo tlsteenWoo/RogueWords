@@ -17,6 +17,7 @@ namespace MknGames
         public MainMenuScreenClassic menuScreen;
         //public RogueWordsScreen boardScreen;
         public RogueWordsScreen activeScreen;
+        public List<string> curseWords = new List<string>();
 
         public RogueWordsGame(GameMG game) : base(game)
         {
@@ -75,6 +76,19 @@ namespace MknGames
             menuScreen.LoadContent();
             //boardScreen.LoadContent();
             //WordListProcessor.DoWorkSon();
+            string path = Path.Combine(menuScreen.board.GetGameDirectory(), "CurseWords.txt");
+            using (StreamReader reader = new StreamReader(File.OpenRead(path)))
+            {
+                while(!reader.EndOfStream)
+                {
+                    string line = reader.ReadLine().Trim();
+                    if (string.IsNullOrWhiteSpace(line))
+                        continue;
+                    string[] tokens = line.Split(' ');
+                    string word = tokens[0].Trim().ToUpper();
+                    curseWords.Add(word);
+                }
+            }
         }
         public override void Update(GameTime gameTime)
         {

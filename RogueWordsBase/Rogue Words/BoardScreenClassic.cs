@@ -325,6 +325,14 @@ namespace MknGames.Rogue_Words
                 add("xylephone");
                 add("zipper");*/
             }
+            for(int i = 0; i < rwg.curseWords.Count;++i)
+            {
+                string word = rwg.curseWords[i];
+                if(charIntStringsContains(dictionary, word))
+                {
+                    dictionary[word[0]][word.Length].Remove(word);
+                }
+            }
 
             //load discovered words
             if (File.Exists(rwg.GetDiscoveryPath()))
