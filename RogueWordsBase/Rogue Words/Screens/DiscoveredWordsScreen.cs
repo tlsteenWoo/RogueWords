@@ -51,8 +51,9 @@ namespace RogueWordsBase.Rogue_Words.Screens
         {
             base.Draw(gameTime, spriteBatch);
 
-            //super expensive!!!!!!
+            //super expensive on ram 70-300mb!!!!!!
             //draw string appears to be expensive
+            //test for intersection with viewport puts work on cpu but the relative cost appears low on pc
             float countY = 0;
             float countX = 0;
             foreach (var table in parent.board.dictionary)

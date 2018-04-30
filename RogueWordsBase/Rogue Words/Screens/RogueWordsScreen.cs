@@ -15,6 +15,16 @@ namespace MknGames.Rogue_Words
         protected RogueWordsGame rwg;
         public Matrix spritebatchMatrix = Matrix.Identity;
         public bool loadContentComplete;
+        public bool verticalScrollEnabled;
+
+        //inst scroll
+        public float scrollOffset;
+        public float initialScrollOffset;
+        public Rectf scrollBounds;
+
+        //inst tap location
+        public Vector2 pointerTapLocation;
+
         protected GameMG game1
         {
             get { return rwg.game1; }
@@ -39,11 +49,36 @@ namespace MknGames.Rogue_Words
         public virtual void LoadContent()
         {
             loadContentComplete = true;
+            scrollBounds = ViewportRect;
         }
 
         public virtual void Update(GameTime gameTime, float et)
         {
 
+            // update input
+            if (pointerTap())
+            {
+                pointerTapLocation = pointerRaw();
+                initialScrollOffset = scrollOffset;
+            }
+
+            //update scroll
+            if (verticalScrollEnabled && pointerDown())
+            {
+                Vector2 offset = pointerRaw() - pointerTapLocation;
+                scrollOffset = initialScrollOffset + offset.Y;
+                float min = scrollBounds.Y;
+                float max = scrollBounds.GetBottom();
+                float top = min + scrollOffset;
+                float bottom = ViewportRect.Height + scrollOffset;
+                if (top < min)
+                    scrollOffset += min - top;
+                if (bottom > max)
+                    scrollOffset += max - bottom;
+            }
+            
+            //update spritebatch matrix
+            spritebatchMatrix = Matrix.CreateTranslation(0, scrollOffset, 0);
         }
 
         public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch)

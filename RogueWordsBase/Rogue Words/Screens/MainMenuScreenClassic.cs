@@ -39,13 +39,6 @@ namespace MknGames.Rogue_Words
 
         //bool dialogDrawing = false;
 
-        //inst scroll
-        float scrollOffset;
-        float initialScrollOffset;
-
-        //inst tap location
-        Vector2 pointerTapLocation;
-
         //inst discovery
         Rectf discoveryBanner;
 
@@ -54,11 +47,11 @@ namespace MknGames.Rogue_Words
             board = new BoardScreenClassic(Game, this, this);
             custom = new CustomRulesScreenClassic(Game, this);
             discovered = new DiscoveredWordsScreen(Game);
+            verticalScrollEnabled = true;
         }
 
         public override void LoadContent()
         {
-            base.LoadContent();
 #if true
             //viewportFull = new Viewport(0,0,395, 702);
             //game1.graphics.PreferredBackBufferWidth = viewportFull.Width;
@@ -97,6 +90,8 @@ namespace MknGames.Rogue_Words
             game1.graphics.ApplyChanges();
 #endif
             discoveryBanner = Banner(7);
+            base.LoadContent();
+            scrollBounds.Height += discoveryBanner.Height;
         }
 
         public override void OnBackPressed()
@@ -108,28 +103,6 @@ namespace MknGames.Rogue_Words
         public override void Update(GameTime gameTime, float et)
         {
             base.Update(gameTime, et);
-
-            // update input
-            if(pointerTap())
-            {
-                pointerTapLocation = pointerRaw();
-                initialScrollOffset = scrollOffset;
-            }
-
-            //update scroll
-            if(pointerDown())
-            {
-                Vector2 offset = pointerRaw() - pointerTapLocation;
-                scrollOffset = initialScrollOffset + offset.Y;
-                float min = -discoveryBanner.Height;
-                float max = ViewportRect.Height;
-                float top = scrollOffset;
-                float bottom = (float)ViewportRect.Height + scrollOffset;
-                if (top < min)
-                    scrollOffset += min - top;
-                if (bottom > max)
-                    scrollOffset += max - bottom;
-            }
 
             // tap play
             if (Banner(1).Contains(pointer()) && pointerTap())
@@ -186,8 +159,6 @@ namespace MknGames.Rogue_Words
                 rwg.SwitchToScreen(discovered);
             }
 
-            //update spritebatch matrix
-            spritebatchMatrix = Matrix.CreateTranslation(0, scrollOffset, 0);
             game1.debugSquare(Rectf.CreateCentered(pointer(), 5, 5), Color.Red, 0);
         }
         public void ApplyBoardSize()
