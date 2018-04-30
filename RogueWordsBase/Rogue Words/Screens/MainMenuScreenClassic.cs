@@ -41,6 +41,7 @@ namespace MknGames.Rogue_Words
 
         //inst discovery
         Rectf discoveryBanner;
+        Rectf optionBanner;
 
         public MainMenuScreenClassic(RogueWordsGame Game) : base(Game)
         {
@@ -90,8 +91,10 @@ namespace MknGames.Rogue_Words
             game1.graphics.ApplyChanges();
 #endif
             discoveryBanner = Banner(8);
+            optionBanner = Banner(9);
             base.LoadContent();
             scrollBounds.Height += discoveryBanner.Height;
+            scrollBounds.Height += optionBanner.Height;
         }
 
         public override void OnBackPressed()
@@ -254,6 +257,7 @@ namespace MknGames.Rogue_Words
             DrawBanner("Customize", 6);
             DrawBanner("Credits", 7);
             DrawBanner("Discovered", 8, (Rectangle)discoveryBanner);
+            DrawBanner("Options", 9, (Rectangle)optionBanner);
             if (drawHowToPlay && Dialog("How To Play",
 @"
 1. Make words 
