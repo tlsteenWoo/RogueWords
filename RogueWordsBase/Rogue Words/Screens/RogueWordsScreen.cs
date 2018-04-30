@@ -15,11 +15,12 @@ namespace MknGames.Rogue_Words
         protected RogueWordsGame rwg;
         public Matrix spritebatchMatrix = Matrix.Identity;
         public bool loadContentComplete;
-        public bool verticalScrollEnabled;
 
         //inst scroll
-        public float scrollOffset;
-        public float initialScrollOffset;
+        public bool verticalScrollEnabled;
+        public bool horizontalScrollEnabled;
+        public Vector2 scrollOffset;
+        public Vector2 initialScrollOffset;
         public Rectf scrollBounds;
 
         //inst tap location
@@ -78,19 +79,27 @@ namespace MknGames.Rogue_Words
             if (verticalScrollEnabled && pointerDown())
             {
                 Vector2 offset = pointerRaw() - pointerTapLocation;
-                scrollOffset = initialScrollOffset - offset.Y;
-                float min = scrollBounds.Y;
-                float max = scrollBounds.GetBottom();
-                float top = min + scrollOffset;
-                float bottom = ViewportRect.Height + scrollOffset;
-                if (top < min)
-                    scrollOffset += min - top;
-                if (bottom > max)
-                    scrollOffset += max - bottom;
+                scrollOffset = initialScrollOffset - offset;
+                float minY = scrollBounds.Y;
+                float maxY = scrollBounds.GetBottom();
+                float minX = scrollBounds.X;
+                float maxX = scrollBounds.GetRight();
+                float top = minY + scrollOffset.Y;
+                float bottom = ViewportRect.Height + scrollOffset.Y;
+                float left = minX + scrollOffset.X;
+                float right = ViewportRect.Width+ scrollOffset.X;
+                if (top < minY)
+                    scrollOffset.Y += minY - top;
+                if (bottom > maxY)
+                    scrollOffset.Y += maxY - bottom;
+                if (left < minX)
+                    scrollOffset.X += minX - left;
+                if (right > maxX)
+                    scrollOffset.X += maxX - right;
             }
             
             //update spritebatch matrix
-            spritebatchMatrix = Matrix.CreateTranslation(0, -scrollOffset, 0);
+            spritebatchMatrix = Matrix.CreateTranslation(-scrollOffset.X, -scrollOffset.Y, 0);
         }
 
         public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch)

@@ -89,7 +89,7 @@ namespace MknGames.Rogue_Words
             game1.graphics.PreferredBackBufferHeight = GraphicsDevice.DisplayMode.TitleSafeArea.Height;
             game1.graphics.ApplyChanges();
 #endif
-            discoveryBanner = Banner(7);
+            discoveryBanner = Banner(8);
             base.LoadContent();
             scrollBounds.Height += discoveryBanner.Height;
         }

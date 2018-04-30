@@ -26,7 +26,6 @@ namespace RogueWordsBase.Rogue_Words.Screens
         public override void LoadContent()
         {
             base.LoadContent();
-            returnButton = Backpack.percentagef(ViewportRect, 0, 0.00f, 1, 0.05f);
             if (!parent.board.loadContentComplete)
                 parent.board.LoadContent();
         }
@@ -34,7 +33,8 @@ namespace RogueWordsBase.Rogue_Words.Screens
         public override void Update(GameTime gameTime, float et)
         {
             base.Update(gameTime, et);
-            if(returnButton.ContainsPoint(pointer()))
+            returnButton = Backpack.percentagef(CalculateTransformedViewportRectf(), 0, 0.00f, 1, 0.05f);
+            if (returnButton.ContainsPoint(pointer()))
             {
                 returnButtonHover = true;
                 if(pointerDown())
@@ -58,6 +58,7 @@ namespace RogueWordsBase.Rogue_Words.Screens
             float countY = 0;
             float countX = 0;
             float maxY = ViewportRect.Height;
+            float maxX = ViewportRect.Width;
             Rectf drawingRect = CalculateTransformedViewportRectf();
             foreach (var table in parent.board.dictionary)
             {
@@ -65,7 +66,7 @@ namespace RogueWordsBase.Rogue_Words.Screens
                 {
                     foreach (var word in list.Value)
                     {
-                        Rectf rect = Backpack.percentagef(ViewportRect, 0.5f * countX, 0.05f * countY, 0.5f, 0.05f);
+                        Rectf rect = Backpack.percentagef(ViewportRect, 0.5f * countX, 0.05f + 0.05f * countY, 0.5f, 0.05f);
                         rect.Y += returnButton.Height;
                         if (rect.Intersectsf(drawingRect))
                         {
@@ -75,6 +76,10 @@ namespace RogueWordsBase.Rogue_Words.Screens
                         {
                             maxY = rect.GetBottom();
                         }
+                        if(rect.GetRight() > maxX)
+                        {
+                            maxX = rect.GetRight();
+                        }
                         countY++;
                         //spriteBatch.DrawString(game1.defaultLargerFont, word, new Vector2(0, countY), Color.White);
                     }
@@ -82,6 +87,7 @@ namespace RogueWordsBase.Rogue_Words.Screens
                 countX++;
                 countY = 0;
             }
+            scrollBounds.Width = maxX;
             scrollBounds.Height = maxY;
             DrawButton("return", returnButton, returnButtonHover, returnButtonDown);
         }
