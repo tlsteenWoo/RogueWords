@@ -46,6 +46,7 @@ namespace MknGames
         private void GameMG_Exiting(object sender, EventArgs e)
         {
             //throw new NotImplementedException();
+            menuScreen.board.WriteSettings();
             if (menuScreen.board.loadContentComplete)
             {
                 string path = GetDiscoveryPath();
@@ -74,6 +75,7 @@ namespace MknGames
             //game1.graphics.PreferredBackBufferHeight = 450;
             //game1.graphics.ApplyChanges();
             menuScreen.LoadContent();
+            menuScreen.board.ReadSettings();
             //boardScreen.LoadContent();
             //WordListProcessor.DoWorkSon();
             string path = "filter-processed.txt";

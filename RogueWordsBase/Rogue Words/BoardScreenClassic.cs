@@ -200,6 +200,7 @@ namespace MknGames.Rogue_Words
                 writer.WriteLine("vowelChance {0}", vowelChance);
                 writer.WriteLine("moveTimeLimit {0}", playerDeadline);
                 writer.WriteLine("highScore {0}", scoreHigh);
+                writer.WriteLine("isDictionaryFiltered {0}", isDictionaryFiltered);
                 Console.WriteLine("Write complete");
             }
         }
@@ -231,6 +232,9 @@ namespace MknGames.Rogue_Words
                                     break;
                                 case "highScore":
                                     scoreHigh = int.Parse(tokens[1]);
+                                    break;
+                                case "isDictionaryFiltered":
+                                    isDictionaryFiltered = bool.Parse(tokens[1]);
                                     break;
                             }
                         }
@@ -328,7 +332,10 @@ namespace MknGames.Rogue_Words
                 add("xylephone");
                 add("zipper");*/
             }
-            TurnOnDictionaryFilter();
+            if (isDictionaryFiltered)
+                TurnOnDictionaryFilter();
+            else
+                TurnOffDictionaryFilter();
 
             //load discovered words
             if (File.Exists(rwg.GetDiscoveryPath()))
