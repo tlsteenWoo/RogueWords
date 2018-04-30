@@ -76,10 +76,10 @@ namespace MknGames
             menuScreen.LoadContent();
             //boardScreen.LoadContent();
             //WordListProcessor.DoWorkSon();
-            string path = Path.Combine(menuScreen.board.GetGameDirectory(), "filter-processed.txt");
-            using (StreamReader reader = new StreamReader(File.OpenRead(path)))
+            string path = "filter-processed.txt";
+            using (StreamReader reader = new StreamReader(BoardScreenClassic.RetrieveStream(path)))
             {
-                while(!reader.EndOfStream)
+                while (!reader.EndOfStream)
                 {
                     string line = reader.ReadLine().Trim();
                     if (string.IsNullOrWhiteSpace(line))
