@@ -332,6 +332,28 @@ https://www.noswearing.com/
 
             //draw cursor
             //game1.drawSquare(pointer(), Color.Red, 0, 10, 10);
+
+            //draw scroll indicator
+            Rectf drawRect = CalculateTransformedViewportRectf();
+            float indicatorHeightPctg = 0.03f;
+            Rectf indicatorRectf = Backpack.percentagef(drawRect, 0, 0, 1, indicatorHeightPctg);
+                float botDif = scrollBounds.GetBottom() - drawRect.GetBottom();
+            float lowAlpha = 0.0f;
+            float highAlpha = 0.5f;
+            float alphaZoneHeight = 50;
+            if(botDif > 0)
+            {
+                Rectf bottomRectf = indicatorRectf;
+                bottomRectf.Y = drawRect.Y + Backpack.percentageH(drawRect, 1- indicatorHeightPctg);
+                game1.drawCircle(bottomRectf, monochrome(0.0f, 
+                    MathHelper.Lerp(lowAlpha, highAlpha, Math.Min(1, botDif/alphaZoneHeight))));
+            }
+            float topDif = scrollBounds.Y - drawRect.Y;
+            if(topDif < 0)
+            {
+                game1.drawCircle(indicatorRectf, monochrome(0.0f, 
+                    MathHelper.Lerp(lowAlpha, highAlpha, Math.Min(1, -topDif / alphaZoneHeight))));
+            }
         }
         public bool Dialog(string titleText, string bodyText, string buttonText)
         {
