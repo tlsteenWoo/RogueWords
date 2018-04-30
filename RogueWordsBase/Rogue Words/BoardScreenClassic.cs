@@ -102,7 +102,7 @@ namespace MknGames.Rogue_Words
         Tile[,] boardTiles;
 
         //inst dictionary
-        Dictionary<char, Dictionary<int, List<string>>> dictionary;
+        public Dictionary<char, Dictionary<int, List<string>>> dictionary;
 
         //inst game
         public bool requestReset = false;

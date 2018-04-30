@@ -26,6 +26,8 @@ namespace RogueWordsBase.Rogue_Words.Screens
         {
             base.LoadContent();
             returnButton = Backpack.percentagef(ViewportRect, 0, 0.00f, 1, 0.05f);
+            if (!parent.board.loadContentComplete)
+                parent.board.LoadContent();
         }
 
         public override void Update(GameTime gameTime, float et)
@@ -50,6 +52,19 @@ namespace RogueWordsBase.Rogue_Words.Screens
             base.Draw(gameTime, spriteBatch);
 
             DrawButton("return", returnButton, returnButtonHover, returnButtonDown);
+            float count = 0;
+            foreach (var table in parent.board.dictionary)
+            {
+                foreach (var list in table.Value)
+                {
+                    foreach (var word in list.Value)
+                    {
+                        Rectf rect = Backpack.percentagef(ViewportRect, 0, 0.05f * count, 1, 0.05f);
+                        rect.Y += returnButton.Y;
+                        count++;
+                    }
+                }
+            }
         }
 
         float grey = 0.5f;

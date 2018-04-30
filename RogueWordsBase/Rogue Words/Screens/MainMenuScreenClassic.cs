@@ -188,6 +188,7 @@ namespace MknGames.Rogue_Words
 
             //update spritebatch matrix
             spritebatchMatrix = Matrix.CreateTranslation(0, scrollOffset, 0);
+            game1.debugSquare(Rectf.CreateCentered(pointer(), 5, 5), Color.Red, 0);
         }
         public void ApplyBoardSize()
         {
