@@ -15,6 +15,7 @@ namespace MknGames.Rogue_Words
         public BoardScreenClassic board;
         CustomRulesScreenClassic custom;
         DiscoveredWordsScreen discovered;
+        OptionsScreen options;
         //public Viewport viewportFull;
         bool drawHowToPlay = false;
         bool drawCredits = false;
@@ -48,6 +49,8 @@ namespace MknGames.Rogue_Words
             board = new BoardScreenClassic(Game, this, this);
             custom = new CustomRulesScreenClassic(Game, this);
             discovered = new DiscoveredWordsScreen(Game);
+            options = new OptionsScreen(Game);
+            options.menu = this;
             verticalScrollEnabled = true;
         }
 
@@ -156,10 +159,18 @@ namespace MknGames.Rogue_Words
             {
                 drawCredits = true;
             }
-            if(pointerRelease() && discoveryBanner.ContainsPoint(pointer()))
+            if(pointerRelease())
             {
-                discovered.parent = this;
-                rwg.SwitchToScreen(discovered);
+                if (discoveryBanner.ContainsPoint(pointer()))
+                {
+                    discovered.parent = this;
+                    rwg.SwitchToScreen(discovered);
+                }
+                if(optionBanner.ContainsPoint(pointer()))
+                {
+                    options.menu = this;
+                    rwg.SwitchToScreen(options);
+                }
             }
 
             game1.debugSquare(Rectf.CreateCentered(pointer(), 5, 5), Color.Red, 0);

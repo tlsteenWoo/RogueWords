@@ -53,6 +53,7 @@
     <Compile Include="Rogue Words\Screens\DiscoveredWordsScreen.cs" />
     <Compile Include="Rogue Words\Screens\MainMenuScreenClassic.cs" />
     <Compile Include="Rogue Words\MenuScreen.cs" />
+    <Compile Include="Rogue Words\Screens\OptionsScreen.cs" />
     <Compile Include="Rogue Words\Screens\PlayScreenClassic.cs" />
     <Compile Include="Rogue Words\RogueWordBrain.cs" />
     <Compile Include="Rogue Words\RogueWordsGame.cs" />
