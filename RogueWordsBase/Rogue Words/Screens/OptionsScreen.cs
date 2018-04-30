@@ -36,9 +36,12 @@ namespace RogueWordsBase.Rogue_Words.Screens
         public override void Update(GameTime gameTime, float et)
         {
             base.Update(gameTime, et);
-            if(pointerTap() && returnButton.ContainsPoint(pointer()))
+            if(pointerRelease())
             {
-                rwg.SwitchToScreen(menu);
+                if(returnButton.ContainsPoint(pointer()))
+                    rwg.SwitchToScreen(menu);
+                if (filterButton.ContainsPoint(pointer()))
+                    menu.board.ToggleDictionaryFilter();
             }
         }
 
@@ -46,7 +49,7 @@ namespace RogueWordsBase.Rogue_Words.Screens
         {
             base.Draw(gameTime, spriteBatch);
             menu.DrawBanner("return", 0, (Rectangle)returnButton);
-            menu.DrawBanner(string.Format("filter: {0}", false), 1, (Rectangle)filterButton);
+            menu.DrawBanner(string.Format("filter: {0}", menu.board.isDictionaryFiltered), 1, (Rectangle)filterButton);
         }
 
     }

@@ -106,6 +106,9 @@ namespace MknGames.Rogue_Words
         //inst dictionary
         public Dictionary<char, Dictionary<int, List<string>>> dictionary;
 
+        //inst filtering
+        public bool isDictionaryFiltered { get; private set; } = true;
+
         //inst game
         public bool requestReset = false;
         bool movesExhausted = false;
@@ -325,14 +328,7 @@ namespace MknGames.Rogue_Words
                 add("xylephone");
                 add("zipper");*/
             }
-            for(int i = 0; i < rwg.curseWords.Count;++i)
-            {
-                string word = rwg.curseWords[i];
-                if(charIntStringsContains(dictionary, word))
-                {
-                    dictionary[word[0]][word.Length].Remove(word);
-                }
-            }
+            TurnOnDictionaryFilter();
 
             //load discovered words
             if (File.Exists(rwg.GetDiscoveryPath()))
@@ -356,6 +352,42 @@ namespace MknGames.Rogue_Words
             pickupSfx= game1.Content.Load<SoundEffect>("Sounds/scrabble-place-rack");
 
             loaded = true;
+        }
+
+        public void TurnOnDictionaryFilter()
+        {
+            for (int i = 0; i < rwg.curseWords.Count; ++i)
+            {
+                string word = rwg.curseWords[i];
+                if (charIntStringsContains(dictionary, word))
+                {
+                    dictionary[word[0]][word.Length].Remove(word);
+                }
+            }
+            isDictionaryFiltered = true;
+        }
+        public void TurnOffDictionaryFilter()
+        {
+            isDictionaryFiltered = false;
+            for (int i = 0; i < rwg.curseWords.Count; ++i)
+            {
+                string word = rwg.curseWords[i];
+                //do not add words that werent there before!
+                if (!charIntStringsContains(dictionary, word))
+                {
+                    dictionary[word[0]][word.Length].Add(word);
+                }
+            }
+        }
+        public void ToggleDictionaryFilter()
+        {
+            if(isDictionaryFiltered)
+            {
+                TurnOffDictionaryFilter();
+            }else
+            {
+                TurnOnDictionaryFilter();
+            }
         }
 
         public override void Update(GameTime gameTime, float et)

@@ -76,7 +76,7 @@ namespace MknGames
             menuScreen.LoadContent();
             //boardScreen.LoadContent();
             //WordListProcessor.DoWorkSon();
-            string path = Path.Combine(menuScreen.board.GetGameDirectory(), "CurseWords.txt");
+            string path = Path.Combine(menuScreen.board.GetGameDirectory(), "filter-processed.txt");
             using (StreamReader reader = new StreamReader(File.OpenRead(path)))
             {
                 while(!reader.EndOfStream)
