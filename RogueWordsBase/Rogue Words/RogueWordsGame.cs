@@ -43,7 +43,7 @@ namespace MknGames
             string path = Path.Combine(menuScreen.board.GetGameDirectory(), "Discovery.txt");
             using (StreamWriter writer = new StreamWriter(File.Create(path)))
             {
-                Console.WriteLine("Discovery: Writing words.");
+                Console.WriteLine("Discovery: Writing words to {0}.", path);
                 foreach (var charintStrings in menuScreen.board.charIntStrings_discovery)
                 {
                     foreach (var intStrings in charintStrings.Value)
