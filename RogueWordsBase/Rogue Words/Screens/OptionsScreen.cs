@@ -46,7 +46,7 @@ namespace RogueWordsBase.Rogue_Words.Screens
         {
             base.Draw(gameTime, spriteBatch);
             menu.DrawBanner("return", 0, (Rectangle)returnButton);
-            menu.DrawBanner(string.Format("filter: {0}", false), 0, (Rectangle)filterButton);
+            menu.DrawBanner(string.Format("filter: {0}", false), 1, (Rectangle)filterButton);
         }
 
     }
