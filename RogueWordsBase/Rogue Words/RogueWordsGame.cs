@@ -8,12 +8,13 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MknGames.Rogue_Words;
 using MknGames._2D;
+using System.IO;
 
 namespace MknGames
 {
     public class RogueWordsGame : fuckwhit_no_cursing
     {
-        public RogueWordsScreen menuScreen;
+        public MainMenuScreenClassic menuScreen;
         //public RogueWordsScreen boardScreen;
         public RogueWordsScreen activeScreen;
 
@@ -39,6 +40,25 @@ namespace MknGames
         private void GameMG_Exiting(object sender, EventArgs e)
         {
             //throw new NotImplementedException();
+            string path = Path.Combine(menuScreen.board.GetGameDirectory(), "Discovery.txt");
+            using (StreamWriter writer = new StreamWriter(File.Create(path)))
+            {
+                Console.WriteLine("Discovery: Writing words.");
+                foreach (var charintStrings in menuScreen.board.charIntStrings_discovery)
+                {
+                    foreach (var intStrings in charintStrings.Value)
+                    {
+                        foreach (var strings in intStrings.Value)
+                        {
+                            foreach (var str in strings)
+                            {
+                                writer.WriteLine(str);
+                            }
+                        }
+                    }
+                }
+                Console.WriteLine("Discovery: Write complete.");
+            }
         }
 
         protected override void LoadContent()

@@ -174,12 +174,12 @@ namespace MknGames.Rogue_Words
 #endif
         }
 
-        string GetGameDirectory()
+        public string GetGameDirectory()
         {
             return Path.Combine(GetEnvironmentDirectory(), gameDirectory);
         }
 
-        string GetSettingsPath()
+        public string GetSettingsPath()
         {
             return Path.Combine(GetGameDirectory(), settingsFilename);
         }
