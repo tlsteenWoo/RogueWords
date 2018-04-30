@@ -42,10 +42,10 @@ namespace RogueWordsBase.Rogue_Words.Screens
                 if(pointerDown())
                 {
                     returnButtonDown = true;
-                    if (!pointerDownOld())
-                    {
-                        rwg.activeScreen = parent;
-                    }
+                }
+                if (pointerRelease())
+                {
+                    rwg.activeScreen = parent;
                 }
             }
         }

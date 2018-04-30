@@ -322,6 +322,9 @@ prominently displayed
 and the text of this document must be 
 included 
 verbatim.
+
+Word filtering thanks in part by 
+https://www.noswearing.com/
 ", "ENOUGH!"))
             {
                 drawCredits = false;
@@ -334,8 +337,9 @@ verbatim.
         {
             //dialogDrawing = true;
             bool result = false;
-            float edge = Backpack.percentageH(ViewportRect, 1f / 20f) / 2;
-            Rectangle howToPlayRect = ViewportRect;
+            Rectf drawRect = CalculateTransformedViewportRectf();
+            float edge = Backpack.percentageH(drawRect, 1f / 20f) / 2;
+            Rectangle howToPlayRect = (Rectangle)drawRect;
             howToPlayRect.Inflate(-edge, -edge);
 
             Rectangle hra = Backpack.percentage(howToPlayRect, 0, 0, 1, 9f / 10f);

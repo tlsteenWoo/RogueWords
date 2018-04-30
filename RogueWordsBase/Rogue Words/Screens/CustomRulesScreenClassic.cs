@@ -44,7 +44,7 @@ namespace MknGames.Rogue_Words
             game1.drawSquare(titler, monochrome(grayv), 0);
             float whitev = 1.0f;
             game1.drawString(game1.defaultLargerFont, "return", titler, monochrome(whitev), Vector2.Zero, true, 0.8f);
-            if(titler.Contains(pointer()) && pointerTap())
+            if(titler.Contains(pointer()) && pointerRelease())
             {
                 board.WriteSettings();
                 rwg.activeScreen = mainMenu;
