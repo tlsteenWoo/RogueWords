@@ -326,8 +326,23 @@ namespace MknGames.Rogue_Words
                 add("zipper");*/
             }
 
-            //load sound
-            placeTileSfx = game1.Content.Load<SoundEffect>("Sounds/scrabble-place-piece-0");
+            //load discovered words
+            if (File.Exists(rwg.GetDiscoveryPath()))
+            {
+                using (StreamReader reader = new StreamReader(rwg.GetDiscoveryPath()))
+                {
+                    Console.WriteLine("Reading discovery from {0}", rwg.GetDiscoveryPath());
+                    while(!reader.EndOfStream)
+                    {
+                        string line = reader.ReadLine().Trim().ToUpper();
+                        charIntStringsAdd(charIntStrings_discovery, line);
+                    }
+                    Console.WriteLine("Finsh reading discovery from {0}", rwg.GetDiscoveryPath());
+                }
+            }
+
+                //load sound
+                placeTileSfx = game1.Content.Load<SoundEffect>("Sounds/scrabble-place-piece-0");
             bellSfx= game1.Content.Load<SoundEffect>("Sounds/bells");
             echoSfx= game1.Content.Load<SoundEffect>("Sounds/bells-echo");
             pickupSfx= game1.Content.Load<SoundEffect>("Sounds/scrabble-place-rack");

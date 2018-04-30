@@ -37,27 +37,32 @@ namespace MknGames
             activeScreen = screen;
         }
 
+        public string GetDiscoveryPath()
+        {
+            return Path.Combine(menuScreen.board.GetGameDirectory(), "Discovery.txt");
+        }
+
         private void GameMG_Exiting(object sender, EventArgs e)
         {
             //throw new NotImplementedException();
-            string path = Path.Combine(menuScreen.board.GetGameDirectory(), "Discovery.txt");
-            using (StreamWriter writer = new StreamWriter(File.Create(path)))
+            if (menuScreen.board.loadContentComplete)
             {
-                Console.WriteLine("Discovery: Writing words to {0}.", path);
-                foreach (var charintStrings in menuScreen.board.charIntStrings_discovery)
+                string path = GetDiscoveryPath();
+                using (StreamWriter writer = new StreamWriter(File.Create(path)))
                 {
-                    foreach (var intStrings in charintStrings.Value)
+                    Console.WriteLine("Discovery: Writing words to {0}.", path);
+                    foreach (var charintStrings in menuScreen.board.charIntStrings_discovery)
                     {
-                        foreach (var strings in intStrings.Value)
+                        foreach (var intStrings in charintStrings.Value)
                         {
-                            foreach (var str in strings)
+                            foreach (var str in intStrings.Value)
                             {
-                                writer.WriteLine(str);
+                                    writer.WriteLine(str);
                             }
                         }
                     }
+                    Console.WriteLine("Discovery: Write complete.");
                 }
-                Console.WriteLine("Discovery: Write complete.");
             }
         }
 
