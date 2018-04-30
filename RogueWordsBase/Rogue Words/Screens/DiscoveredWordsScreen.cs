@@ -56,21 +56,43 @@ namespace RogueWordsBase.Rogue_Words.Screens
             //draw string appears to be expensive
             //test for intersection with viewport puts work on cpu but the relative cost appears low on pc
             float countY = 0;
-            float countX = 0;
             float maxY = ViewportRect.Height;
             float maxX = ViewportRect.Width;
             Rectf drawingRect = CalculateTransformedViewportRectf();
-            foreach (var table in parent.board.dictionary)
+            Rectf itemBaseRectf = Backpack.percentagef(ViewportRect, 0, 0.05f, 0.5f, 0.05f);
+            int startX = (int)Math.Floor(drawingRect.X / itemBaseRectf.Width);
+            int startY = (int)Math.Floor(drawingRect.Y / itemBaseRectf.Height);
+            var dict = parent.board.dictionary;
+            for (int i = startX; i < dict.Keys.Count; ++i)
             {
-                foreach (var list in table.Value)
+                float x = i;
+                var key = dict.Keys.ElementAt(i);
+                var table = dict[key];
+                //detect vertical overflow
+                bool enteredDrawingBounds = false;
+                bool exitDrawingBounds = false;
+                for(int j = 0; j < table.Keys.Count; ++j)
                 {
-                    foreach (var word in list.Value)
+                    var key2 = table.Keys.ElementAt(j);
+                    var list = table[key2];
+                    for(int k = 0;  k < list.Count; ++k)
                     {
-                        Rectf rect = Backpack.percentagef(ViewportRect, 0.5f * countX, 0.05f + 0.05f * countY, 0.5f, 0.05f);
-                        rect.Y += returnButton.Height;
+                        float y = countY;
+                        countY++;
+                        //if (countY < startY) continue;
+                        Rectf rect  = itemBaseRectf;
+                        rect.X += rect.Width * x;
+                        rect.Y += rect.Height * y;
+                        var word = list[k];
                         if (rect.Intersectsf(drawingRect))
                         {
+                            enteredDrawingBounds = true;
                             game1.drawStringf(game1.defaultLargerFont, word, rect, monochrome(white), new Vector2(0), true, 1);
+                        }
+                        else if(enteredDrawingBounds)
+                        {
+                            //exited drawing bounds
+                            exitDrawingBounds = true;
                         }
                         if(rect.GetBottom() > maxY)
                         {
@@ -80,12 +102,22 @@ namespace RogueWordsBase.Rogue_Words.Screens
                         {
                             maxX = rect.GetRight();
                         }
-                        countY++;
                         //spriteBatch.DrawString(game1.defaultLargerFont, word, new Vector2(0, countY), Color.White);
+                        if(exitDrawingBounds)
+                        {
+                            break;
+                        }
+                    }
+                    if(exitDrawingBounds)
+                    {
+                        break;
                     }
                 }
-                countX++;
                 countY = 0;
+                if(maxX > drawingRect.GetRight())
+                {
+                    break;
+                }
             }
             scrollBounds.Width = maxX;
             scrollBounds.Height = maxY;
