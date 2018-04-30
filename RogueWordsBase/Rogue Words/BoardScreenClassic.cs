@@ -51,7 +51,7 @@ namespace MknGames.Rogue_Words
 
         //inst discovery
         List<string> discoveredWords = new List<string>();
-        public Dictionary<char, Dictionary<int, List<string>>> charIntStringsTable_discovery = new Dictionary<char, Dictionary<int, List<string>>>();
+        public Dictionary<char, Dictionary<int, List<string>>> charIntStrings_discovery = new Dictionary<char, Dictionary<int, List<string>>>();
 
         //inst board
         int mapW = 7;
@@ -267,31 +267,17 @@ namespace MknGames.Rogue_Words
                     string path = dir + filename;
                     using (StreamReader reader = new StreamReader(RetrieveStream(path)))
                     {
+                        Dictionary<int, List<string>> intStrings = new Dictionary<int, List<string>>();
+                        dictionary.Add(letter, intStrings);
                         while (reader.EndOfStream == false)
                         {
                             string word = reader.ReadLine().Trim().ToUpper();
                             if (string.IsNullOrEmpty(word) == false)
                             {
                                 char initial = word[0];
-                                if (initial != letter)
-                                    continue;
-                                if (dictionary.ContainsKey(initial) == false)
-                                    dictionary.Add(initial, new Dictionary<int, List<string>>());
-                                Dictionary<int, List<string>> pages = dictionary[initial];
-                                if (pages.ContainsKey(word.Length) == false)
-                                    pages.Add(word.Length, new List<string>());
-                                List<string> words = pages[word.Length];
-                                words.Add(word);
-                                if(game1.rand.Next(100) > 90)
-                                {
-                                    if (!charIntStringsTable_discovery.ContainsKey(word[0]))
-                                        charIntStringsTable_discovery.Add(word[0], new Dictionary<int, List<string>>());
-                                    var charInt = charIntStringsTable_discovery[word[0]];
-                                    if (charInt.ContainsKey(word.Length) == false)
-                                        charInt.Add(word.Length, new List<string>());
-                                    var strings = charInt[word.Length];
-                                    strings.Add(word);
-                                }
+                                if (intStrings.ContainsKey(word.Length) == false)
+                                    intStrings.Add(word.Length, new List<string>());
+                                intStrings[word.Length].Add(word);
                             }
                         }
                     } //end using reader
@@ -591,6 +577,8 @@ namespace MknGames.Rogue_Words
                     if (matchingWords.Contains(chainWord))
                     {
                         discoveredWords.Add(chainWord);
+                        if (!charIntStringsContains(charIntStrings_discovery, chainWord))
+                            charIntStringsAdd(charIntStrings_discovery, chainWord);
                         foreach (Tile t in chainTiles)
                         {
                             t.chain++;

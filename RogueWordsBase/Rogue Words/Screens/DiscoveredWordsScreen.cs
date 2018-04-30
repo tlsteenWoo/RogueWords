@@ -71,9 +71,8 @@ namespace RogueWordsBase.Rogue_Words.Screens
                 //detect vertical overflow
                 bool enteredDrawingBounds = false;
                 bool exitDrawingBounds = false;
-                for(int j = 0; j < table.Keys.Count; ++j)
+                foreach(var key2 in table.Keys.OrderBy(length => length))
                 {
-                    var key2 = table.Keys.ElementAt(j);
                     var list = table[key2];
                     for(int k = 0;  k < list.Count; ++k)
                     {
@@ -88,7 +87,7 @@ namespace RogueWordsBase.Rogue_Words.Screens
                         {
                             enteredDrawingBounds = true;
                             Color textColor = monochrome(dark);
-                            if (charIntStringsTableContains(parent.board.charIntStringsTable_discovery, word))
+                            if (charIntStringsContains(parent.board.charIntStrings_discovery, word))
                                 textColor = monochrome(white);
                             game1.drawStringf(game1.defaultLargerFont, word, rect, textColor, new Vector2(0), true, 1);
                         }
