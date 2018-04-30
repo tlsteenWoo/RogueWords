@@ -282,7 +282,7 @@ namespace MknGames.Rogue_Words
             }
             DrawBanner("Customize", 6);
             DrawBanner("Credits", 7);
-            DrawBanner("Discovered", 8, discoveryBanner);
+            DrawBanner("Discovered", 8, (Rectangle)discoveryBanner);
             if (drawHowToPlay && Dialog("How To Play",
 @"
 1. Make words 

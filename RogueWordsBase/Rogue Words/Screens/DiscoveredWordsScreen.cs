@@ -51,20 +51,30 @@ namespace RogueWordsBase.Rogue_Words.Screens
         {
             base.Draw(gameTime, spriteBatch);
 
-            DrawButton("return", returnButton, returnButtonHover, returnButtonDown);
-            float count = 0;
+            //super expensive!!!!!!
+            //draw string appears to be expensive
+            float countY = 0;
+            float countX = 0;
             foreach (var table in parent.board.dictionary)
             {
                 foreach (var list in table.Value)
                 {
                     foreach (var word in list.Value)
                     {
-                        Rectf rect = Backpack.percentagef(ViewportRect, 0, 0.05f * count, 1, 0.05f);
-                        rect.Y += returnButton.Y;
-                        count++;
+                        Rectf rect = Backpack.percentagef(ViewportRect, 0.5f * countX, 0.05f * countY, 0.5f, 0.05f);
+                        rect.Y += returnButton.Height;
+                        if (rect.Intersects(ViewportRect))
+                        {
+                            game1.drawStringf(game1.defaultLargerFont, word, rect, monochrome(white), new Vector2(0), true, 1);
+                        }
+                        countY++;
+                        //spriteBatch.DrawString(game1.defaultLargerFont, word, new Vector2(0, countY), Color.White);
                     }
                 }
+                countX++;
+                countY = 0;
             }
+            DrawButton("return", returnButton, returnButtonHover, returnButtonDown);
         }
 
         float grey = 0.5f;
