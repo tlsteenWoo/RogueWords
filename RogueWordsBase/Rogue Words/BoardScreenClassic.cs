@@ -272,23 +272,13 @@ namespace MknGames.Rogue_Words
                         dictionary.Add(letter, intStrings);
                         while (reader.EndOfStream == false)
                         {
-                            string line = reader.ReadLine().Trim().ToUpper();
-                            string[] tokens = line.Split(',');
-                            string word = tokens[0];
+                            string word = reader.ReadLine().Trim().ToUpper();
                             if (string.IsNullOrEmpty(word) == false)
                             {
                                 char initial = word[0];
                                 if (intStrings.ContainsKey(word.Length) == false)
                                     intStrings.Add(word.Length, new List<string>());
                                 intStrings[word.Length].Add(word);
-                            }
-                            if (tokens.Length > 1)
-                            {
-                                bool discovered = bool.Parse(tokens[1]);
-                                if (discovered)
-                                {
-                                    charIntStringsAdd(charIntStrings_discovery, word);
-                                }
                             }
                         }
                     } //end using reader
