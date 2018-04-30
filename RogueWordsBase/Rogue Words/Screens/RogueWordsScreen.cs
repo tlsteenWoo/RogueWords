@@ -52,6 +52,18 @@ namespace MknGames.Rogue_Words
             scrollBounds = ViewportRect;
         }
 
+        public Rectf CalculateTransformedViewportRectf()
+        {
+            Rectf rect = ViewportRect;
+            Vector2 min = new Vector2(rect.X, rect.Y);
+            Vector2 max = min + new Vector2(rect.Width, rect.Height);
+            Matrix inv = Matrix.Invert(spritebatchMatrix);
+            Vector2 minTransform = Vector2.Transform(min, inv);
+            Vector2 maxTransform = Vector2.Transform(max, inv);
+            Vector2 sizeTransform = maxTransform - minTransform;
+            return new Rectf(minTransform.X, minTransform.Y, sizeTransform.X, sizeTransform.Y);
+        }
+
         public virtual void Update(GameTime gameTime, float et)
         {
 
@@ -66,7 +78,7 @@ namespace MknGames.Rogue_Words
             if (verticalScrollEnabled && pointerDown())
             {
                 Vector2 offset = pointerRaw() - pointerTapLocation;
-                scrollOffset = initialScrollOffset + offset.Y;
+                scrollOffset = initialScrollOffset - offset.Y;
                 float min = scrollBounds.Y;
                 float max = scrollBounds.GetBottom();
                 float top = min + scrollOffset;
@@ -78,7 +90,7 @@ namespace MknGames.Rogue_Words
             }
             
             //update spritebatch matrix
-            spritebatchMatrix = Matrix.CreateTranslation(0, scrollOffset, 0);
+            spritebatchMatrix = Matrix.CreateTranslation(0, -scrollOffset, 0);
         }
 
         public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch)

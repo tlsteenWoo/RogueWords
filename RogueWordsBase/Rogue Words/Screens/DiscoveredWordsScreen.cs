@@ -20,6 +20,7 @@ namespace RogueWordsBase.Rogue_Words.Screens
 
         public DiscoveredWordsScreen(RogueWordsGame Game) : base(Game)
         {
+            verticalScrollEnabled = true;
         }
 
         public override void LoadContent()
@@ -56,6 +57,8 @@ namespace RogueWordsBase.Rogue_Words.Screens
             //test for intersection with viewport puts work on cpu but the relative cost appears low on pc
             float countY = 0;
             float countX = 0;
+            float maxY = ViewportRect.Height;
+            Rectf drawingRect = CalculateTransformedViewportRectf();
             foreach (var table in parent.board.dictionary)
             {
                 foreach (var list in table.Value)
@@ -64,9 +67,13 @@ namespace RogueWordsBase.Rogue_Words.Screens
                     {
                         Rectf rect = Backpack.percentagef(ViewportRect, 0.5f * countX, 0.05f * countY, 0.5f, 0.05f);
                         rect.Y += returnButton.Height;
-                        if (rect.Intersects(ViewportRect))
+                        if (rect.Intersectsf(drawingRect))
                         {
                             game1.drawStringf(game1.defaultLargerFont, word, rect, monochrome(white), new Vector2(0), true, 1);
+                        }
+                        if(rect.GetBottom() > maxY)
+                        {
+                            maxY = rect.GetBottom();
                         }
                         countY++;
                         //spriteBatch.DrawString(game1.defaultLargerFont, word, new Vector2(0, countY), Color.White);
@@ -75,6 +82,7 @@ namespace RogueWordsBase.Rogue_Words.Screens
                 countX++;
                 countY = 0;
             }
+            scrollBounds.Height = maxY;
             DrawButton("return", returnButton, returnButtonHover, returnButtonDown);
         }
 
