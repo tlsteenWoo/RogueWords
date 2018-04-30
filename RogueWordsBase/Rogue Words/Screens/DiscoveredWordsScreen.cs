@@ -87,7 +87,10 @@ namespace RogueWordsBase.Rogue_Words.Screens
                         if (rect.Intersectsf(drawingRect))
                         {
                             enteredDrawingBounds = true;
-                            game1.drawStringf(game1.defaultLargerFont, word, rect, monochrome(white), new Vector2(0), true, 1);
+                            Color textColor = monochrome(dark);
+                            if (charIntStringsTableContains(parent.board.charIntStringsTable_discovery, word))
+                                textColor = monochrome(white);
+                            game1.drawStringf(game1.defaultLargerFont, word, rect, textColor, new Vector2(0), true, 1);
                         }
                         else if(enteredDrawingBounds)
                         {

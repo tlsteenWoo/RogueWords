@@ -102,6 +102,15 @@ namespace MknGames.Rogue_Words
             spritebatchMatrix = Matrix.CreateTranslation(-scrollOffset.X, -scrollOffset.Y, 0);
         }
 
+        public static bool charIntStringsTableContains(Dictionary<char, Dictionary<int, List<string>>> table, string word)
+        {
+            if (!table.ContainsKey(word[0]))
+                return false;
+            if (!table[word[0]].ContainsKey(word.Length))
+                return false;
+            return table[word[0]][word.Length].Contains(word);
+        }
+
         public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
 

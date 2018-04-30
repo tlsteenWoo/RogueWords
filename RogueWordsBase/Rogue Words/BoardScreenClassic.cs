@@ -51,6 +51,7 @@ namespace MknGames.Rogue_Words
 
         //inst discovery
         List<string> discoveredWords = new List<string>();
+        public Dictionary<char, Dictionary<int, List<string>>> charIntStringsTable_discovery = new Dictionary<char, Dictionary<int, List<string>>>();
 
         //inst board
         int mapW = 7;
@@ -281,6 +282,16 @@ namespace MknGames.Rogue_Words
                                     pages.Add(word.Length, new List<string>());
                                 List<string> words = pages[word.Length];
                                 words.Add(word);
+                                if(game1.rand.Next(100) > 90)
+                                {
+                                    if (!charIntStringsTable_discovery.ContainsKey(word[0]))
+                                        charIntStringsTable_discovery.Add(word[0], new Dictionary<int, List<string>>());
+                                    var charInt = charIntStringsTable_discovery[word[0]];
+                                    if (charInt.ContainsKey(word.Length) == false)
+                                        charInt.Add(word.Length, new List<string>());
+                                    var strings = charInt[word.Length];
+                                    strings.Add(word);
+                                }
                             }
                         }
                     } //end using reader
