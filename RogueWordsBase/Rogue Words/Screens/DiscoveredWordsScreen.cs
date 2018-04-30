@@ -33,7 +33,9 @@ namespace RogueWordsBase.Rogue_Words.Screens
         public override void Update(GameTime gameTime, float et)
         {
             base.Update(gameTime, et);
-            returnButton = Backpack.percentagef(CalculateTransformedViewportRectf(), 0, 0.00f, 1, 0.05f);
+            returnButton = Backpack.percentagef(CalculateTransformedViewportRectf(), 0, 0.00f, 1, 0.1f);
+            returnButtonHover = false;
+            returnButtonDown = false;
             if (returnButton.ContainsPoint(pointer()))
             {
                 returnButtonHover = true;
@@ -86,7 +88,7 @@ namespace RogueWordsBase.Rogue_Words.Screens
                         if (rect.Intersectsf(drawingRect))
                         {
                             enteredDrawingBounds = true;
-                            Color textColor = monochrome(dark);
+                            Color textColor = monochrome(grey/2);
                             if (charIntStringsContains(parent.board.charIntStrings_discovery, word))
                                 textColor = monochrome(white);
                             game1.drawStringf(game1.defaultLargerFont, word, rect, textColor, new Vector2(0), true, 1);

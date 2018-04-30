@@ -80,22 +80,17 @@ namespace MknGames.Rogue_Words
             {
                 Vector2 offset = pointerRaw() - pointerTapLocation;
                 scrollOffset = initialScrollOffset - offset;
-                float minY = scrollBounds.Y;
-                float maxY = scrollBounds.GetBottom();
-                float minX = scrollBounds.X;
-                float maxX = scrollBounds.GetRight();
-                float top = minY + scrollOffset.Y;
-                float bottom = ViewportRect.Height + scrollOffset.Y;
-                float left = minX + scrollOffset.X;
-                float right = ViewportRect.Width+ scrollOffset.X;
-                if (top < minY)
-                    scrollOffset.Y += minY - top;
-                if (bottom > maxY)
-                    scrollOffset.Y += maxY - bottom;
-                if (left < minX)
-                    scrollOffset.X += minX - left;
-                if (right > maxX)
-                    scrollOffset.X += maxX - right;
+                Rectf viewRectf = ViewportRect;
+                viewRectf.X += scrollOffset.X;
+                viewRectf.Y += scrollOffset.Y;
+                if (viewRectf.Y < scrollBounds.Y)
+                    scrollOffset.Y += scrollBounds.Y - viewRectf.Y;
+                if (viewRectf.GetBottom() > scrollBounds.GetBottom())
+                    scrollOffset.Y += scrollBounds.GetBottom() - viewRectf.GetBottom();
+                if (viewRectf.X < scrollBounds.X)
+                    scrollOffset.X += scrollBounds.X - viewRectf.X;
+                if (viewRectf.GetRight() > scrollBounds.GetRight())
+                    scrollOffset.X += scrollBounds.GetRight() - viewRectf.GetRight();
             }
             
             //update spritebatch matrix

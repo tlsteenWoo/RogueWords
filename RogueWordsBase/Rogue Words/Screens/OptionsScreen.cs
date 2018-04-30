@@ -29,8 +29,8 @@ namespace RogueWordsBase.Rogue_Words.Screens
         public override void LoadContent()
         {
             base.LoadContent();
-            returnButton = Backpack.percentagef(ViewportRect, 0, 0, 1, 0.05f);
-            filterButton = Backpack.percentagef(ViewportRect, 0, 0.05f, 1, 0.05f);
+            returnButton = Backpack.percentagef(ViewportRect, 0, 0, 1, 0.1f);
+            filterButton = Backpack.percentagef(ViewportRect, 0, 0.1f, 1, 0.1f);
         }
 
         public override void Update(GameTime gameTime, float et)
