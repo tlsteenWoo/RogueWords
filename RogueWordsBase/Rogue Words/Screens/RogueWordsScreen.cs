@@ -185,7 +185,7 @@ namespace MknGames.Rogue_Words
 
         public bool pointerDownOld()
         {
-            if (game1.touchesCurrent.Count > 0)
+            if (game1.touchesOld.Count > 0)
             {
                 return game1.touchesOld[0].State != Microsoft.Xna.Framework.Input.Touch.TouchLocationState.Released &&
                     game1.touchesOld[0].State != Microsoft.Xna.Framework.Input.Touch.TouchLocationState.Invalid;
