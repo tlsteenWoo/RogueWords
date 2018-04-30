@@ -50,6 +50,7 @@ namespace MknGames.Rogue_Words
         int scoreHigh = 0;
 
         //inst discovery
+        List<string> completedWords = new List<string>();
         List<string> discoveredWords = new List<string>();
         public Dictionary<char, Dictionary<int, List<string>>> charIntStrings_discovery = new Dictionary<char, Dictionary<int, List<string>>>();
 
@@ -522,6 +523,7 @@ namespace MknGames.Rogue_Words
                 currentCombo = 0;
 
                 //reset discovered words
+                completedWords.Clear();
                 discoveredWords.Clear();
             }
             bool playerMoved = oldPosition.X != playerX || oldPosition.Y != playerY;
@@ -576,9 +578,12 @@ namespace MknGames.Rogue_Words
                     // update discovered words
                     if (matchingWords.Contains(chainWord))
                     {
-                        discoveredWords.Add(chainWord);
+                        completedWords.Add(chainWord);
                         if (!charIntStringsContains(charIntStrings_discovery, chainWord))
+                        {
                             charIntStringsAdd(charIntStrings_discovery, chainWord);
+                            discoveredWords.Add(chainWord);
+                        }
                         foreach (Tile t in chainTiles)
                         {
                             t.chain++;
@@ -1044,7 +1049,7 @@ namespace MknGames.Rogue_Words
                 float f = (float)currentCombo;
                 Rectf r = Split_Screen_Dungeon.Backpack.percentagef(mrb, i / f, 0, 1 / f, 1);
                 //string text = i == 0 ? "DE" : i == 1 ? "DEV" : i == 2 ? "DEVISE" : "DEVISES";
-                string text = discoveredWords[discoveredWords.Count-1-(int)i];
+                string text = completedWords[completedWords.Count-1-(int)i];
                 Rectf textbox = game1.CalculateTextContainer(game1.defaultLargerFont, text, r, monochrome(1), new Vector2(0.5f), true);
                 game1.drawSquare(textbox, monochrome(0), 0);
                 game1.drawStringf(game1.defaultLargerFont, text, textbox, monochrome(1), new Vector2(0.5f), true);
@@ -1081,7 +1086,7 @@ namespace MknGames.Rogue_Words
                 float lightv = 0.8f;
                 game1.drawSquare(reviewRect, monochrome(lightv, 0.8f), 0);
                 // draw discovered words
-                for (float i = 0; i < discoveredWords.Count + 2; ++i)
+                for (float i = 0; i < completedWords.Count + 2; ++i)
                 {
                     Rectangle r = Split_Screen_Dungeon.Backpack.percentage(reviewRect, 0, i / 25f, 1, 1f / 25f);
                     Rectangle drawr = r;
@@ -1100,7 +1105,12 @@ namespace MknGames.Rogue_Words
                     if (i > 1)
                     {
                         int d = (int)i - 2; //discovered word index
-                        text = d + ". " + discoveredWords[d];
+                        text = d + ". " + completedWords[d];
+                        if(discoveredWords.Contains(completedWords[d]))
+                        {
+                            doHighscoreText = true;
+                            highscoreText = "new";
+                        }
                         //int a = (int)i % 17;
                         //int b = a - 2;
                         //if (i % 18 == 17)
