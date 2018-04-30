@@ -111,62 +111,63 @@ namespace MknGames.Rogue_Words
             base.Update(gameTime, et);
 
             // tap play
-            if (Banner(1).Contains(pointer()) && pointerTap())
+            float scrollCutoff = 4;
+            if (!ScrollingOccurred() && pointerRelease())
             {
-                //using(StreamWriter writer = new StreamWriter("main-menu-settings.txt")_
-                if(!board.loaded)
-                board.LoadContent();
-                board.requestReset = true;
-                switch(difficulty)
+                if (Banner(1).Contains(pointer()))
                 {
-                    case 0: //too easy
-                        board.assuredBranchLimit = 4;
-                        board.vowelChance = 50;
-                        board.playerDeadline = 10000;
-                        break;
-                    case 1: //easy
-                        board.assuredBranchLimit = 2;
-                        board.vowelChance = 50;
-                        board.playerDeadline = 15;
-                        break;
-                    case 2: //medium
-                        board.assuredBranchLimit = 1;
-                        board.vowelChance = 50;
-                        board.playerDeadline = 10;
-                        break;
-                    case 3: //hard
-                        board.assuredBranchLimit = 1;
-                        board.vowelChance = 30;
-                        board.playerDeadline = 5;
-                        break;
-                    case 4: //very hard
-                        board.assuredBranchLimit = 1;
-                        board.vowelChance = 10;
-                        board.playerDeadline = 2;
-                        break;
+                    //using(StreamWriter writer = new StreamWriter("main-menu-settings.txt")_
+                    if (!board.loaded)
+                        board.LoadContent();
+                    board.requestReset = true;
+                    switch (difficulty)
+                    {
+                        case 0: //too easy
+                            board.assuredBranchLimit = 4;
+                            board.vowelChance = 50;
+                            board.playerDeadline = 10000;
+                            break;
+                        case 1: //easy
+                            board.assuredBranchLimit = 2;
+                            board.vowelChance = 50;
+                            board.playerDeadline = 15;
+                            break;
+                        case 2: //medium
+                            board.assuredBranchLimit = 1;
+                            board.vowelChance = 50;
+                            board.playerDeadline = 10;
+                            break;
+                        case 3: //hard
+                            board.assuredBranchLimit = 1;
+                            board.vowelChance = 30;
+                            board.playerDeadline = 5;
+                            break;
+                        case 4: //very hard
+                            board.assuredBranchLimit = 1;
+                            board.vowelChance = 10;
+                            board.playerDeadline = 2;
+                            break;
+                    }
+                    ApplyBoardSize();
+                    ////////// rapid autoplay
+                    //board.playerDeadline = 0;
+                    rwg.activeScreen = board;
                 }
-                ApplyBoardSize();
-                ////////// rapid autoplay
-                //board.playerDeadline = 0;
-                rwg.activeScreen = board;
-            }
-            if (Banner(6).Contains(pointer()) && pointerTap())
-            {
-                custom.LoadContent();
-                rwg.activeScreen = custom;
-            }
-            if (/*!dialogDrawing && */Banner(7).Contains(pointer()) && pointerTap())
-            {
-                drawCredits = true;
-            }
-            if(pointerRelease())
-            {
+                if (Banner(6).Contains(pointer()))
+                {
+                    custom.LoadContent();
+                    rwg.activeScreen = custom;
+                }
+                if (/*!dialogDrawing && */Banner(7).Contains(pointer()))
+                {
+                    drawCredits = true;
+                }
                 if (discoveryBanner.ContainsPoint(pointer()))
                 {
                     discovered.parent = this;
                     rwg.SwitchToScreen(discovered);
                 }
-                if(optionBanner.ContainsPoint(pointer()))
+                if (optionBanner.ContainsPoint(pointer()))
                 {
                     options.menu = this;
                     rwg.SwitchToScreen(options);
@@ -216,7 +217,7 @@ namespace MknGames.Rogue_Words
             game1.drawSquare(drb, monochrome(0.8f), 0);
             Rectangle drbtxt = Backpack.percentage(drb, 0.1f, 0.3f, 0.8f, 0.4f);
             game1.drawString(game1.defaultLargerFont, difficultyNames[difficulty], drbtxt, monochrome(0.0f), new Vector2(0.5f, 0.5f), true);
-            if(pointerTap() && drb.Contains(pointer()))
+            if(!ScrollingOccurred() && pointerRelease() && drb.Contains(pointer()))
             {
                 difficulty = (difficulty + 1 ) % difficultyNames.Length;
             }
@@ -250,7 +251,7 @@ namespace MknGames.Rogue_Words
                 //game1.drawSquare(btnInner2, btnc, 0);
                 game1.drawCircle(btnInner2, btnc);
                 Vector2 btn2ptr = pointer() - btnCenter;
-                if (pointerTap() && btn2ptr.LengthSquared() < btnRadius * btnRadius)
+                if (!ScrollingOccurred() && pointerRelease() && btn2ptr.LengthSquared() < btnRadius * btnRadius)
                 {
                     boardSize = (int)i;
                 }
@@ -261,7 +262,7 @@ namespace MknGames.Rogue_Words
                 game1.drawStringf(game1.defaultLargerFont,txt, lbl, monochrome(1), new Vector2(0.1f,0.5f), true, 0.6f);
             }
             DrawBanner("How To Play", 5);
-            if(!drawHowToPlay && Banner(5).Contains(pointer()) && pointerTap())
+            if(!drawHowToPlay && Banner(5).Contains(pointer()) && !ScrollingOccurred() && pointerRelease())
             {
                 drawHowToPlay = true;
             }
@@ -362,7 +363,7 @@ verbatim.
             float lightv = 0.8f;
             game1.drawSquare(hrok, monochrome(lightv), 0);
             game1.drawString(game1.defaultLargerFont, buttonText, hrok, monochrome(0), new Vector2(0.5f), true);
-            if (hrok.Contains(pointer()) && pointerTap())
+            if (hrok.Contains(pointer()) && !ScrollingOccurred() && pointerRelease())
             {
                 result = true;
             }

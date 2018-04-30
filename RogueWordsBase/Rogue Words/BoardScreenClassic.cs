@@ -1084,7 +1084,7 @@ namespace MknGames.Rogue_Words
             Rectf returnBtn = Backpack.percentagef(middleRect, 0f, 0.25f, 0.2f, .5f);
             game1.drawSquare(returnBtn, monochrome(0.2f), 0);
             game1.drawStringf(game1.defaultLargerFont, "back", returnBtn, monochrome(1.0f), new Vector2(0.5f), true, 1);
-            if (returnBtn.ContainsPoint(pointer()) && pointerTap())
+            if (returnBtn.ContainsPoint(pointer()) && pointerRelease())
             {
                 rwg.activeScreen = parentScreen;
             }

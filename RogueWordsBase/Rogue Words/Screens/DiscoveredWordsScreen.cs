@@ -61,7 +61,8 @@ namespace RogueWordsBase.Rogue_Words.Screens
             float maxY = ViewportRect.Height;
             float maxX = ViewportRect.Width;
             Rectf drawingRect = CalculateTransformedViewportRectf();
-            Rectf itemBaseRectf = Backpack.percentagef(ViewportRect, 0, 0.05f, 0.5f, 0.05f);
+            Rectf itemBaseRectf = Backpack.percentagef(ViewportRect, 0, 0, 0.5f, 0.05f);
+            itemBaseRectf.Y += returnButton.Height;
             int startX = (int)Math.Floor(drawingRect.X / itemBaseRectf.Width);
             int startY = (int)Math.Floor(drawingRect.Y / itemBaseRectf.Height);
             var dict = parent.board.dictionary;

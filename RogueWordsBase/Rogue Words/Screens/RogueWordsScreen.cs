@@ -97,6 +97,12 @@ namespace MknGames.Rogue_Words
             spritebatchMatrix = Matrix.CreateTranslation(-scrollOffset.X, -scrollOffset.Y, 0);
         }
 
+        public bool ScrollingOccurred()
+        {
+            float cutoff = 10;
+            return (scrollOffset - initialScrollOffset).LengthSquared() > cutoff * cutoff;
+        }
+
         public static bool charIntStringsContains(Dictionary<char, Dictionary<int, List<string>>> table, string word)
         {
             if (!table.ContainsKey(word[0]))
