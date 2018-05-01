@@ -139,6 +139,9 @@ namespace MknGames.Rogue_Words
         SoundEffect pickupSfx;
         SoundEffect echoSfx;
 
+        //inst test
+        bool wantAutoStressTest = false;
+
         public BoardScreenClassic(RogueWordsGame Game, MainMenuScreenClassic main, RogueWordsScreen parent) : base(Game)
         {
             this.mainMenu = main;
@@ -451,7 +454,7 @@ namespace MknGames.Rogue_Words
                 playerElapsed += et;
             }
             bool requestMoveElimination = false;
-            if (playerElapsed >= playerDeadline)
+            if (playerElapsed >= playerDeadline || wantAutoStressTest)
             {
                 playerElapsed -= playerDeadline;
                 requestMoveElimination = true;
@@ -785,7 +788,7 @@ namespace MknGames.Rogue_Words
             //requestReset = true;
             drawReview = true;
             WriteSettings();
-            if (false)
+            if (wantAutoStressTest)
             {
                 requestReset = true;
                 collectionLength = 0;// game1.randf(0.25f);
