@@ -75,7 +75,7 @@ namespace MknGames
             //game1.graphics.PreferredBackBufferHeight = 450;
             //game1.graphics.ApplyChanges();
             menuScreen.LoadContent();
-            menuScreen.board.ReadSettings();
+            menuScreen.board.LoadContent();
             //boardScreen.LoadContent();
             //WordListProcessor.DoWorkSon();
             string path = "filter-processed.txt";
