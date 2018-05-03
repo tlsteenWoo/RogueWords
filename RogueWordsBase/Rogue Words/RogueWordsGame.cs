@@ -114,9 +114,7 @@ namespace MknGames
             //game1.graphics.PreferredBackBufferHeight = 450;
             //game1.graphics.ApplyChanges();
             menuScreen.LoadContent();
-            menuScreen.board.LoadContent();
-            //boardScreen.LoadContent();
-            //WordListProcessor.DoWorkSon();
+            //load curse words before board loads dictionary (which will filter based on these results)
             string path = "filter-processed.txt";
             using (StreamReader reader = new StreamReader(BoardScreenClassic.RetrieveStream(path)))
             {
@@ -130,6 +128,9 @@ namespace MknGames
                     curseWords.Add(word);
                 }
             }
+            menuScreen.board.LoadContent();
+            //boardScreen.LoadContent();
+            //WordListProcessor.DoWorkSon();
         }
         public override void Update(GameTime gameTime)
         {
