@@ -134,6 +134,7 @@ namespace MknGames.Rogue_Words
         float totalWordElapsed;
 
         //inst sound
+        public float volume = 1;
         SoundEffect placeTileSfx;
         SoundEffect bellSfx;
         SoundEffect pickupSfx;
@@ -204,6 +205,7 @@ namespace MknGames.Rogue_Words
                 writer.WriteLine("moveTimeLimit {0}", playerDeadline);
                 writer.WriteLine("highScore {0}", scoreHigh);
                 writer.WriteLine("isDictionaryFiltered {0}", isDictionaryFiltered);
+                writer.WriteLine("volume {0}", volume);
                 Console.WriteLine("Write complete");
             }
         }
@@ -238,6 +240,9 @@ namespace MknGames.Rogue_Words
                                     break;
                                 case "isDictionaryFiltered":
                                     isDictionaryFiltered = bool.Parse(tokens[1]);
+                                    break;
+                                case "volume":
+                                    volume = float.Parse(tokens[1]);
                                     break;
                             }
                         }
@@ -630,7 +635,7 @@ namespace MknGames.Rogue_Words
             //update chain
             if (requestConsumeCurrentTile)
             {
-                placeTileSfx.Play();
+                placeTileSfx.Play(volume, 0, 0);
                 Tile T = boardTiles[playerX, playerY];
                 T.consumed = true;
                 T.chain = 0;
@@ -768,7 +773,7 @@ namespace MknGames.Rogue_Words
 
         private void OnPostTileCollected(object v, EventArgs eventArgs)
         {
-            pickupSfx.Play();
+            pickupSfx.Play(volume, 0, 0);
         }
 
         public float ComboToPitch(int combo)

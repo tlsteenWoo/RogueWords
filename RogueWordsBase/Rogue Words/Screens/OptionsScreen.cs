@@ -19,6 +19,7 @@ namespace RogueWordsBase.Rogue_Words.Screens
         }
         Rectf returnButton;
         Rectf filterButton;
+        Rectf soundButton;
         public MainMenuScreenClassic menu;
 
         public OptionsScreen(RogueWordsGame Game) : base(Game)
@@ -36,12 +37,20 @@ namespace RogueWordsBase.Rogue_Words.Screens
         public override void Update(GameTime gameTime, float et)
         {
             base.Update(gameTime, et);
-            if(pointerRelease())
+            soundButton = Backpack.percentagef(ViewportRect, 0, 0.2f, 1, 0.1f);
+            if (pointerRelease())
             {
                 if(returnButton.ContainsPoint(pointer()))
                     rwg.SwitchToScreen(menu);
                 if (filterButton.ContainsPoint(pointer()))
                     menu.board.ToggleDictionaryFilter();
+                if(soundButton.ContainsPoint(pointer()))
+                {
+                    if (menu.board.volume == 0)
+                        menu.board.volume = 1;
+                    else
+                        menu.board.volume = 0;
+                }
             }
         }
 
@@ -50,6 +59,7 @@ namespace RogueWordsBase.Rogue_Words.Screens
             base.Draw(gameTime, spriteBatch);
             menu.DrawBanner("return", 0, (Rectangle)returnButton);
             menu.DrawBanner(string.Format("filter: {0}", menu.board.isDictionaryFiltered), 1, (Rectangle)filterButton);
+            menu.DrawBanner(string.Format("sound: {0}", menu.board.volume), 2, (Rectangle)soundButton);
         }
 
     }
