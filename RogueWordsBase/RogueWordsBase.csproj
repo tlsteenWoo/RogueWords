@@ -46,20 +46,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Rogue Words\BoardLogicClassic.cs" />
-    <Compile Include="Rogue Words\Screens\BoardScreen.cs" />
-    <Compile Include="Rogue Words\BoardScreenClassic.cs" />
-    <Compile Include="Rogue Words\Screens\CustomRulesScreenClassic.cs" />
-    <Compile Include="Rogue Words\Screens\DiscoveredWordsScreen.cs" />
-    <Compile Include="Rogue Words\Screens\MainMenuScreenClassic.cs" />
-    <Compile Include="Rogue Words\MenuScreen.cs" />
-    <Compile Include="Rogue Words\Screens\OptionsScreen.cs" />
-    <Compile Include="Rogue Words\Screens\PlayScreenClassic.cs" />
-    <Compile Include="Rogue Words\RogueWordBrain.cs" />
-    <Compile Include="Rogue Words\RogueWordsGame.cs" />
-    <Compile Include="Rogue Words\RogueWordsGameMG.cs" />
-    <Compile Include="Rogue Words\Screens\RogueWordsScreen.cs" />
-    <Compile Include="Rogue Words\WordListProcessor.cs" />
+    <Compile Include="Screens\BoardScreen.cs" />
+    <Compile Include="Screens\BoardScreenClassic.cs" />
+    <Compile Include="Screens\BoardScreenBase.cs" />
+    <Compile Include="Screens\CustomRulesScreenClassic.cs" />
+    <Compile Include="Screens\DiscoveredWordsScreen.cs" />
+    <Compile Include="Screens\MainMenuScreenClassic.cs" />
+    <Compile Include="Screens\OptionsScreen.cs" />
+    <Compile Include="Screens\PlayScreenClassic.cs" />
+    <Compile Include="RogueWordsGame.cs" />
+    <Compile Include="RogueWordsGameMG.cs" />
+    <Compile Include="Screens\RogueWordsScreen.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\SplitScreenDungeonAndroid\MakinGames\MakinGames\MakinGames.csproj">

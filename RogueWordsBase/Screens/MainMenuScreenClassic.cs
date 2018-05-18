@@ -58,10 +58,6 @@ namespace MknGames.Rogue_Words
         public override void LoadContent()
         {
             base.LoadContent();
-            discoveryBanner = Banner(8);
-            optionBanner = Banner(9);
-            scrollBounds.Height += discoveryBanner.Height;
-            scrollBounds.Height += optionBanner.Height;
         }
 
         public override void OnBackPressed()
@@ -73,9 +69,11 @@ namespace MknGames.Rogue_Words
         public override void Update(GameTime gameTime, float et)
         {
             base.Update(gameTime, et);
+            scrollBounds.Height = ViewportRect.Height + Banner(0).Height * 2;
+            discoveryBanner = Banner(8);
+            optionBanner = Banner(9);
 
             // tap play
-            float scrollCutoff = 4;
             if (!ScrollingOccurred() && pointerRelease() && !dialogDrawing)
             {
                 if (Banner(1).Contains(pointer()))
@@ -115,7 +113,8 @@ namespace MknGames.Rogue_Words
                     ApplyBoardSize();
                     ////////// rapid autoplay
                     //board.playerDeadline = 0;
-                    rwg.activeScreen = board;
+                    board.parentScreen = this;
+                    rwg.SwitchToScreen(board);
                 }
                 if (Banner(6).Contains(pointer()))
                 {

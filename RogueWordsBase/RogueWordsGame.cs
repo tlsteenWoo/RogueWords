@@ -71,7 +71,7 @@ namespace MknGames
         protected override void LoadContent()
         {
             //initialize
-#if false
+#if true
             //viewportFull = new Viewport(0,0,395, 702);
             //game1.graphics.PreferredBackBufferWidth = viewportFull.Width;
             //game1.graphics.PreferredBackBufferHeight = viewportFull.Height;
@@ -93,7 +93,7 @@ namespace MknGames
                 //float resY = 2560;
                 float resX = 2560;
                 float resY = 1600;
-                float ratio = Math.Min(1, desiredHeight / resY);
+                float ratio = Math.Min(1, desiredHeight / resY) / 2;
                 pbbw = (int)(resX * ratio);
                 pbbh = (int)(resY * ratio);
             }
@@ -116,7 +116,7 @@ namespace MknGames
             menuScreen.LoadContent();
             //load curse words before board loads dictionary (which will filter based on these results)
             string path = "filter-processed.txt";
-            using (StreamReader reader = new StreamReader(BoardScreenClassic.RetrieveStream(path)))
+            using (StreamReader reader = new StreamReader(BoardScreenBase.RetrieveStream(path)))
             {
                 while (!reader.EndOfStream)
                 {
