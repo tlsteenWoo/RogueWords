@@ -58,3 +58,5 @@ monodroid*.msi
 
 #Tim Extras
 MakingGamesWindows/publish/
+v15/
+!Game6.dll
