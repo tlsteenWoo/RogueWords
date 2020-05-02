@@ -14,7 +14,7 @@ namespace MknGames.Rogue_Words
     {
         protected RogueWordsGame rwg;
         public Matrix spritebatchMatrix = Matrix.Identity;
-        protected GameMG game1
+        public GameMG game1
         {
             get { return rwg.game1; }
         }

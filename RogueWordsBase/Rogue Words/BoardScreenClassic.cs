@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Input;
 using System.IO;
 using MknGames.Split_Screen_Dungeon;
 using Microsoft.Xna.Framework.Audio;
+using RogueWordsBase;
 
 namespace MknGames.Rogue_Words
 {
@@ -20,8 +21,10 @@ namespace MknGames.Rogue_Words
         public bool loaded = false;
 
         //inst player
-        int playerX = 3;
-        int playerY = 6;
+        public bool playerMoved;
+        public int playerX = 3;
+        public int playerY = 6;
+        public Point oldPlayerPosition;
         Point[] playerMoves = new Point[]{
             new Point(1,0),
             new Point(0,1),
@@ -32,12 +35,12 @@ namespace MknGames.Rogue_Words
         public float playerDeadline = 5;
 
         //inst chain
-        List<Tile> chainTiles = new List<Tile>();
-        string chainWord;
+        public List<Tile> chainTiles = new List<Tile>();
+        public string chainWord;
 
         //inst collect
-        Queue<Tile> collectionTiles = new Queue<Tile>();
-        float collectionElapsed = 0;
+        public Queue<Tile> collectionTiles = new Queue<Tile>();
+        public float collectionElapsed = 0;
         float collectionLength = 0.25f;
 
         //inst potential
@@ -46,7 +49,7 @@ namespace MknGames.Rogue_Words
 
         //inst scoring
         int currentCombo = 0;
-        int score = 0;
+        public int score = 0;
         int scoreHigh = 0;
 
         //inst discovery
@@ -55,61 +58,22 @@ namespace MknGames.Rogue_Words
         //inst board
         int mapW = 7;
         int mapH = 12;
-        public class Tile
-        {
-            public char letter = 'A';
-            public bool consumed;
-            public bool visible;
-            public int chain;
-            public int collectionMultiplier;
-            int[] letterValueTable = new int[26]
-            {
-                1,//a
-                3,//b
-                3,//c
-                2,//d
-                1,//e
-                4,//f
-                2,//g
-                4,//h
-                1,//i
-                8,//j
-                5,//k
-                1,//l
-                3,//m
-                1,//n
-                1,//o
-                3,//p
-                10,//q
-                1,//r
-                1,//s
-                1,//t
-                1,//u
-                4,//v
-                4,//w
-                8,//x
-                4,//y
-                10,//z
-            };
-            public int value
-            {
-                get
-                {
-                    return letterValueTable[letter - 65];
-                }
-            }
-        }
-        Tile[,] boardTiles;
+        public Tile[,] boardTiles;
 
         //inst dictionary
         Dictionary<char, Dictionary<int, List<string>>> dictionary;
 
         //inst game
         public bool requestReset = false;
+        public bool consumeOldVisibleFlag = true;
+        public bool revealNewVisibleFlag = true;
+        public bool consumeCurrentTileFlag = true;
+        public bool wordBuildFlag = true;
         bool movesExhausted = false;
         public int assuredBranchLimit = 4;
         public float vowelChance = 50;
         char[] vowels = new char[5] { 'A', 'E', 'I', 'O', 'U' };
+        RogueGameMode rgm;
 
         //inst io
         string gameDirectory = "RogueWords/";
@@ -138,6 +102,7 @@ namespace MknGames.Rogue_Words
         {
             this.mainMenu = main;
             this.parentScreen = parent;
+            rgm = new RogueGameMode(this);
 
             //construct board
             ConstructBoard();
@@ -158,7 +123,7 @@ namespace MknGames.Rogue_Words
             {
                 for (int y = 0; y < mapH; ++y)
                 {
-                    boardTiles[x, y] = new Tile();
+                    boardTiles[x, y] = new Tile(x,y);
                 }
             }
         }
@@ -334,12 +299,15 @@ namespace MknGames.Rogue_Words
             echoSfx= game1.Content.Load<SoundEffect>("Sounds/bells-echo");
             pickupSfx= game1.Content.Load<SoundEffect>("Sounds/scrabble-place-rack");
 
+
             loaded = true;
         }
 
         public override void Update(GameTime gameTime, float et)
         {
             base.Update(gameTime, et);
+
+            rgm.update();
 
             //update gameplay
             if(guiPointerTapTile != guiPointerReleaseTile && 
@@ -443,7 +411,7 @@ namespace MknGames.Rogue_Words
             {
                 OnMovesExhausted((object)this, new EventArgs());
             }
-            Point oldPosition = new Point(playerX, playerY);
+            oldPlayerPosition = new Point(playerX, playerY);
             if (game1.kclick(Keys.Right))
             {
                 playerX++;
@@ -511,8 +479,8 @@ namespace MknGames.Rogue_Words
                 //reset player
                 playerX = mapW / 2;
                 playerY = mapH / 2;
-                oldPosition.X = playerX;
-                oldPosition.Y = playerY;
+                oldPlayerPosition.X = playerX;
+                oldPlayerPosition.Y = playerY;
                 requestConsumeCurrentTile = true;
 
                 var randCharTable = dictionary[dictionary.Keys.ElementAt(game1.rand.Next(dictionary.Keys.Count))];
@@ -527,7 +495,7 @@ namespace MknGames.Rogue_Words
                 //reset discovered words
                 discoveredWords.Clear();
             }
-            bool playerMoved = oldPosition.X != playerX || oldPosition.Y != playerY;
+            playerMoved = oldPlayerPosition.X != playerX || oldPlayerPosition.Y != playerY;
             if (!playerMoved && requestForcedMove)
             {
                 int start = game1.rand.Next(playerMoves.Length);
@@ -553,8 +521,8 @@ namespace MknGames.Rogue_Words
                 if (invalidMove(playerX, playerY))
                 {
 
-                    playerX = oldPosition.X;
-                    playerY = oldPosition.Y;
+                    playerX = oldPlayerPosition.X;
+                    playerY = oldPlayerPosition.Y;
                 }
                 else
                 {
@@ -568,47 +536,51 @@ namespace MknGames.Rogue_Words
             {
                 placeTileSfx.Play();
                 Tile T = boardTiles[playerX, playerY];
-                T.consumed = true;
-                T.chain = 0;
-                chainTiles.Add(T);
-                chainWord += T.letter;
-                Dictionary<int, List<String>> charcountTable = dictionary[chainWord[0]]; //table with an entire list of words associated with an integer referring to a word's character length
-                if (charcountTable.ContainsKey(chainWord.Length))
+                if(consumeCurrentTileFlag)
+                    T.consumed = true;
+                if (wordBuildFlag)
                 {
-                    List<string> matchingWords = charcountTable[chainWord.Length];
-                    // update discovered words
-                    if (matchingWords.Contains(chainWord))
+                    T.chain = 0;
+                    chainTiles.Add(T);
+                    chainWord += T.letter;
+
+                    Dictionary<int, List<String>> charcountTable = dictionary[chainWord[0]]; //table with an entire list of words associated with an integer referring to a word's character length
+                    if (charcountTable.ContainsKey(chainWord.Length))
                     {
-                        discoveredWords.Add(chainWord);
-                        foreach (Tile t in chainTiles)
+                        List<string> matchingWords = charcountTable[chainWord.Length];
+                        // update discovered words
+                        if (matchingWords.Contains(chainWord))
                         {
-                            t.chain++;
+                            discoveredWords.Add(chainWord);
+                            foreach (Tile t in chainTiles)
+                            {
+                                t.chain++;
+                            }
+                            currentCombo++;
+                            //post word found
+                            //float pitch = ComboToPitch(currentCombo);
+                            //bellSfx.Play(1, pitch, 0);
                         }
-                        currentCombo++;
-                        //post word found
-                        //float pitch = ComboToPitch(currentCombo);
-                        //bellSfx.Play(1, pitch, 0);
+                    }
+
+                    UpdateWordPotential(charcountTable);
+                    if (potentialWords.Count == 1 && potentialWords[0].Length == chainWord.Length)
+                    {
+                        noMoreWordsElapsed = 0;
+                    }
+                    if (potentialWords.Count == 0)
+                    {
+                        //if(chainTiles[chainTiles.Count-1].chain > 0)
+                        //{
+                        //    totalWordElapsed = 0;
+                        //    score += 25;
+                        //}
+                        //pre word finish
+                        Collect(1);
+                        UpdateWordPotential(dictionary[chainWord[0]]);
+                        noMoreWordsElapsed = noMoreWordsDuration;
                     }
                 }
-                
-                    UpdateWordPotential(charcountTable);
-                if(potentialWords.Count == 1 && potentialWords[0].Length == chainWord.Length)
-                {
-                    noMoreWordsElapsed = 0;
-                }
-                if (potentialWords.Count == 0)
-                {
-                    //if(chainTiles[chainTiles.Count-1].chain > 0)
-                    //{
-                    //    totalWordElapsed = 0;
-                    //    score += 25;
-                    //}
-                    //pre word finish
-                    Collect(1);
-                    UpdateWordPotential(dictionary[chainWord[0]]);
-                    noMoreWordsElapsed = noMoreWordsDuration;
-                }
-                
             }
 
             //update collection
@@ -636,7 +608,7 @@ namespace MknGames.Rogue_Words
                         return null;
                     return boardTiles[x, y];
                 };
-                oldVisible[i] = getVisible(oldPosition.X + playerMoves[i].X, oldPosition.Y + playerMoves[i].Y);
+                oldVisible[i] = getVisible(oldPlayerPosition.X + playerMoves[i].X, oldPlayerPosition.Y + playerMoves[i].Y);
                 newVisible[i] = getVisible(playerX + playerMoves[i].X, playerY + playerMoves[i].Y);
             }
             //int nextPossiblei = 0;
@@ -647,7 +619,7 @@ namespace MknGames.Rogue_Words
                 int v = (offsetVis + i) % oldVisible.Length; //visible tile index
                 //if the old does not exist in new, consume it
                 Tile oldvis = oldVisible[v];
-                if (oldvis != null && !newVisible.Contains(oldvis))
+                if (oldvis != null && !newVisible.Contains(oldvis) && consumeOldVisibleFlag)
                 {
                     oldvis.consumed = true;
                     oldvis.visible = false;
@@ -690,7 +662,10 @@ namespace MknGames.Rogue_Words
                             assuredBrachCount++;
                         }
                     }
-                    newvis.visible = true;
+                    if (revealNewVisibleFlag)
+                    {
+                        newvis.visible = true;
+                    }
                 }
             }
         }
@@ -1073,6 +1048,8 @@ namespace MknGames.Rogue_Words
             game1.drawSquare(alertr, monochrome(0.0f), 0);
             game1.drawFrame(alertr, monochrome(0.5f), 1);
             game1.drawString(game1.defaultLargerFont, alertText, alertr, monochrome(1.0f), new Vector2(0.5f), true);
+
+            rgm.Draw();
 
             if (drawReview)
             {

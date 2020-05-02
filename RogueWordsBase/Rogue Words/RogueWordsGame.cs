@@ -8,11 +8,13 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MknGames.Rogue_Words;
 using MknGames._2D;
+using MknGames.Split_Screen_Dungeon;
 
 namespace MknGames
 {
     public class RogueWordsGame : fuckwhit_no_cursing
     {
+        public bool paused  = false;
         public RogueWordsScreen menuScreen;
         //public RogueWordsScreen boardScreen;
         public RogueWordsScreen activeScreen;
@@ -49,6 +51,8 @@ namespace MknGames
             base.Update(gameTime);
 
             float et = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (game1.kclick(Keys.P)) paused = !paused ;
+            if (paused) return;
             activeScreen.Update(gameTime, et);
             //game1.debugSquare(Rectf.CreateCentered(activeScreen.pointer(), 5, 5), Color.Green, 0);
             //game1.debugSquare(Rectf.CreateCentered(activeScreen.pointerRaw(), 5, 5), Color.Blue, 0);
@@ -60,6 +64,8 @@ namespace MknGames
             game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied,null,null,null,null, activeScreen.spritebatchMatrix);
             activeScreen.Draw(gameTime, game1.spriteBatch);
             game1.DrawDebugSquares();
+            if(paused)
+                game1.drawString("paused", Backpack.percentage(game1.GraphicsDevice.Viewport.Bounds, 0.1f, 0.4f, 0.8f, 0.1f), Color.White,new Vector2(0.5f),true);
             game1.spriteBatch.End();
 
             game1.FlushDebugSquares();

@@ -65,10 +65,12 @@
     <Compile Include="Rogue Words\MainMenuScreenClassic.cs" />
     <Compile Include="Rogue Words\MenuScreen.cs" />
     <Compile Include="Rogue Words\PlayScreenClassic.cs" />
+    <Compile Include="Rogue Words\RogueGameMode.cs" />
     <Compile Include="Rogue Words\RogueWordBrain.cs" />
     <Compile Include="Rogue Words\RogueWordsGame.cs" />
     <Compile Include="Rogue Words\RogueWordsGameMG.cs" />
     <Compile Include="Rogue Words\RogueWordsScreen.cs" />
+    <Compile Include="Rogue Words\Tile.cs" />
     <Compile Include="Rogue Words\WordListProcessor.cs" />
   </ItemGroup>
   <ItemGroup>
