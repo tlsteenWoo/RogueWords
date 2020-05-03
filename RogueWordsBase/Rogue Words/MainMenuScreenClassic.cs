@@ -67,7 +67,7 @@ namespace MknGames.Rogue_Words
             int pbbh = 702;
             game1.graphics.IsFullScreen = false;
             {
-                float desiredHeight = GraphicsDevice.DisplayMode.TitleSafeArea.Height - 100;
+                float desiredHeight = GraphicsDevice.DisplayMode.TitleSafeArea.Height - 200;
                 //galaxy s6: 1440 x 2560
                 //nexus 10: 2560 x 1600
                 //64.5" sony KD-65ZD9: 3840x2160

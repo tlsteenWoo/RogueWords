@@ -16,7 +16,7 @@ namespace RogueWordsBase
     {
         BoardScreenClassic bsc;
         bool inBattle = false;
-        bool initializedBattle = false;
+        int battleState = 0;
         int previousScore = 0;
         int score = 0;
         RogueEnemy enemy;
@@ -29,9 +29,11 @@ namespace RogueWordsBase
                 bsc.consumeOldVisibleFlag = false;
             bsc.revealNewVisibleFlag = false;
             bsc.consumeCurrentTileFlag = false;
+            bsc.applyMultiplierFlag = false;
+            bsc.allowChainingFlag = false;
             //for(int i = 0; i < )
-            bsc.mapH = 20;
-            bsc.mapW = 20;
+            bsc.mapH = 50;
+            bsc.mapW = 50;
             MainMenuScreenClassic.ignoreRequestedSize = true;
         }
 
@@ -67,6 +69,8 @@ namespace RogueWordsBase
                         t.visible = false;
                         if (consumed != null)
                             t.consumed = consumed[t.X,t.Y];
+                        if(t.consumed)
+                            t.letter = ' ';
                     }
                 }
                 bsc.boardTiles[bsc.playerX, bsc.playerY].chain = 0;
@@ -79,28 +83,48 @@ namespace RogueWordsBase
             }
             else
             {
-                if(!initializedBattle)
+                switch (battleState)
                 {
-                    initializedBattle = true;
-                    bsc.boardTiles[bsc.oldPlayerPosition.X, bsc.oldPlayerPosition.Y].chain = -1;
-                    enemy = new RogueEnemy();
+                    case 0:
+                        battleState++;
+                        bsc.boardTiles[bsc.oldPlayerPosition.X, bsc.oldPlayerPosition.Y].chain = -1;
+                        enemy = new RogueEnemy();
+                        bsc.requestReset = true;
+                        bsc.wordBuildFlag = false;
+                        break;
+                    case 1:
+                        bsc.wordBuildFlag = true;
+
+                        battleState++;
+                        break;
                 }
                 bsc.consumeOldVisibleFlag = true;
                 bsc.revealNewVisibleFlag = true;
                 bsc.consumeCurrentTileFlag = true;
-                bsc.wordBuildFlag = true;
                 if (enemy.hp <= 0)
                 {
-                    initializedBattle = false;
+                    battleState = 0;
                     inBattle = false;
                 }
                 if(previousScore != score)
                 {
                     int damage = score - previousScore;
-                    enemy.hp -= damage;
+                    if (damage < 0)
+                        player.hp += damage;
+                    else
+                        enemy.hp -= damage;
                 }
                 if (bsc.game1.kclick(Microsoft.Xna.Framework.Input.Keys.Enter))
                     bsc.Collect(0);
+            }
+        }
+
+        public void postUpdate()
+        {
+            if(battleState == 1)
+            {
+                bsc.boardTiles[bsc.playerX, bsc.playerY].letter = '@';
+                bsc.score = score;
             }
         }
 

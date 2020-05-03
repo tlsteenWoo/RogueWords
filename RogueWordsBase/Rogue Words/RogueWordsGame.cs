@@ -39,8 +39,6 @@ namespace MknGames
         protected override void LoadContent()
         {
             base.LoadContent();
-            //game1.graphics.PreferredBackBufferWidth = 425;
-            //game1.graphics.PreferredBackBufferHeight = 450;
             //game1.graphics.ApplyChanges();
             menuScreen.LoadContent();
             //boardScreen.LoadContent();

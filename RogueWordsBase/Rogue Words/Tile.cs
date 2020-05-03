@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 
 namespace RogueWordsBase
 {
@@ -15,6 +16,8 @@ namespace RogueWordsBase
         public int collectionMultiplier;
         public int X;
         public int Y;
+        internal Vector2 position;
+        internal Rectangle rect;
         int[] letterValueTable = new int[26]
         {
                 1,//a

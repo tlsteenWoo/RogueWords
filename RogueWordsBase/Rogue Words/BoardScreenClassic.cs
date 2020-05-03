@@ -69,6 +69,8 @@ namespace MknGames.Rogue_Words
         public bool revealNewVisibleFlag = true;
         public bool consumeCurrentTileFlag = true;
         public bool wordBuildFlag = true;
+        public bool applyMultiplierFlag = true;
+        public bool allowChainingFlag = true;
         bool movesExhausted = false;
         public int assuredBranchLimit = 4;
         public float vowelChance = 50;
@@ -98,6 +100,17 @@ namespace MknGames.Rogue_Words
         SoundEffect pickupSfx;
         SoundEffect echoSfx;
 
+        //inst gui
+        private Rectangle playRect;
+        private float tileH;
+        private float tileW;
+        private Vector2 tileOffset;
+        private Rectangle overheadRect;
+        private Rectf multiplierRect;
+        private Rectangle scoreRect;
+        private Rectf returnBtn;
+        private Rectf middleRect;
+
         public BoardScreenClassic(RogueWordsGame Game, MainMenuScreenClassic main, RogueWordsScreen parent) : base(Game)
         {
             this.mainMenu = main;
@@ -116,7 +129,7 @@ namespace MknGames.Rogue_Words
             ConstructBoard();
         }
 
-        void ConstructBoard()
+        public void ConstructBoard()
         {
             boardTiles = new Tile[mapW, mapH];
             for (int x = 0; x < mapW; ++x)
@@ -559,11 +572,14 @@ namespace MknGames.Rogue_Words
                         if (matchingWords.Contains(chainWord))
                         {
                             discoveredWords.Add(chainWord);
-                            foreach (Tile t in chainTiles)
+                            if (allowChainingFlag)
                             {
-                                t.chain++;
+                                foreach (Tile t in chainTiles)
+                                {
+                                    t.chain++;
+                                }
                             }
-                            currentCombo++;
+                                currentCombo++;
                             //post word found
                             //float pitch = ComboToPitch(currentCombo);
                             //bellSfx.Play(1, pitch, 0);
@@ -597,8 +613,11 @@ namespace MknGames.Rogue_Words
                 {
                     collectionElapsed -= collectionLength;
                     Tile t = collectionTiles.Dequeue();
+                    int value = t.value;
+                    if (applyMultiplierFlag)
+                        value *= t.chain;
                     t.chain = -1;
-                    score += t.value * t.collectionMultiplier;
+                    score += value;
                     OnPostTileCollected((object)this, new EventArgs());
                 }
                 collectionElapsed += et;
@@ -675,6 +694,8 @@ namespace MknGames.Rogue_Words
                     }
                 }
             }
+            updateGUI();
+            rgm.postUpdate();
         }
 
         private void OnPostTileCollected(object v, EventArgs eventArgs)
@@ -790,29 +811,14 @@ namespace MknGames.Rogue_Words
             rwg.activeScreen = parentScreen;
         }
 
-        public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+        private void updateGUI()
         {
-            if (requestReset)
-                return;
-
-            base.Draw(gameTime, spriteBatch);
-
-
-            float et = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            game1.GraphicsDevice.Clear(Color.Magenta);
-
-            game1.drawSquare(ViewportRect, Color.LimeGreen, 0);
-
-            Rectangle playRect = Split_Screen_Dungeon.Backpack.percentage(ViewportRect, 0, 0.15f, 1, 0.85f);
+            playRect = Split_Screen_Dungeon.Backpack.percentage(ViewportRect, 0, 0.15f, 1, 0.85f);
             if (playRect.Bottom != ViewportRect.Bottom)
                 playRect.Height++;
-            game1.drawSquare(playRect, monochrome(0.2f), 0);
-
-            // draw board
             Vector2 prcenter = playRect.Center.ToVector2();
-            float tileH = Split_Screen_Dungeon.Backpack.percentageH(playRect, 1f / 13f);
-            float tileW = tileH;
+            tileH = Split_Screen_Dungeon.Backpack.percentageH(playRect, 1f / 13f);
+            tileW = tileH;
             Vector2 tileSize = new Vector2(tileW, tileH);
             Vector2 mapSize = new Vector2(mapW, mapH) * tileSize;
             Vector2 mapCenter = mapSize / 2;
@@ -834,7 +840,71 @@ namespace MknGames.Rogue_Words
                 if (container.Bottom < playRect.Bottom) container.Y -= container.Bottom - playRect.Bottom;
             }
 
-            Vector2 tileOffset = container.Location.ToVector2() + tileSize/2;
+            tileOffset = container.Location.ToVector2() + tileSize / 2;
+
+            guiPointerReleaseTile = null; // reset gui pointer release tile
+            if (pointerUp() && pointerUpOld())
+                guiPointerTapTile = null;
+            for (int x = 0; x < mapW; ++x)
+            {
+                for (int y = 0; y < mapH; ++y)
+                {
+                    Tile T = boardTiles[x, y];
+                    T.position = tileOffset + new Vector2(x * tileW, y * tileH);
+                    T.rect = game1.centeredRect(T.position, tileW, tileH);
+                    if (pointerRelease() && T.rect.Contains(pointer()))
+                    {
+                        guiPointerReleaseTile = T;
+                        guiPointerReleaseTileCoord.X = x;
+                        guiPointerReleaseTileCoord.Y = y;
+                    }
+                    if (pointerTap() && T.rect.Contains(pointer()))
+                    {
+                        guiPointerTapTile = T;
+                        guiPointerTapTileCoord.X = x;
+                        guiPointerTapTileCoord.Y = y;
+                    }
+                }
+            }
+            overheadRect = Split_Screen_Dungeon.Backpack.percentage(ViewportRect, 0, 0, 1, 0.1f);
+            multiplierRect = Split_Screen_Dungeon.Backpack.percentagef(overheadRect, 0, 0, 1f / 6f, 1);
+            scoreRect = Split_Screen_Dungeon.Backpack.percentage(overheadRect, 5f / 6f, 0, 1f / 6f, 1);
+            if (pointerTap() && multiplierRect.ContainsPoint(pointer()))
+            {
+                requestReset = true;
+            }
+            if (scoreRect.Contains(pointer()) && pointerTap())
+            {
+                drawReview = !drawReview;
+            }
+            middleRect = overheadRect;
+            middleRect.Width -= scoreRect.Width;
+            middleRect.Width -= multiplierRect.Width;
+            middleRect.X += scoreRect.Width;
+            returnBtn = Backpack.percentagef(middleRect, 0f, 0.25f, 0.2f, .5f);
+            if (returnBtn.ContainsPoint(pointerRaw()) && pointerTap())
+            {
+                rwg.activeScreen = parentScreen;
+            }
+        }
+
+        public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+        {
+            if (requestReset)
+                return;
+
+            base.Draw(gameTime, spriteBatch);
+
+
+            float et = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            game1.GraphicsDevice.Clear(Color.Magenta);
+
+            game1.drawSquare(ViewportRect, Color.LimeGreen, 0);
+
+            game1.drawSquare(playRect, monochrome(0.2f), 0);
+
+            // draw board
             // draw tiles
             Vector2[] tileCorners = new Vector2[4] {
                 Vector2.Normalize(new Vector2(-1,-1)),
@@ -848,9 +918,6 @@ namespace MknGames.Rogue_Words
                 Vector2.Normalize(new Vector2(0,1)),
                 Vector2.Normalize(new Vector2(0,-1))
             };
-            guiPointerReleaseTile = null; // reset gui pointer release tile
-            if(pointerUp() && pointerUpOld())
-                guiPointerTapTile = null;
             for (int x = 0; x < mapW; ++x)
             {
                 for (int y = 0; y < mapH; ++y)
@@ -892,7 +959,8 @@ namespace MknGames.Rogue_Words
                         }
                     }
                     // draw tile
-                    Vector2 pos = tileOffset + new Vector2(x * tileW, y * tileH);
+                    Vector2 pos = T.position;
+                    Vector2 tileSize = new Vector2(tileW, tileH);
                     if (drawRoundedSquare)
                     {
                         game1.drawSquare(pos, monochrome(0), 0, tileW, tileH);
@@ -910,19 +978,6 @@ namespace MknGames.Rogue_Words
                         game1.drawSquare(pos, bg, 0, tileW, tileH);
                     }
                     //tap tile
-                    Rectangle r = game1.centeredRect(pos, tileW, tileH);
-                    if (pointerRelease() && r.Contains(pointer()))
-                    {
-                        guiPointerReleaseTile = T;
-                        guiPointerReleaseTileCoord.X = x;
-                        guiPointerReleaseTileCoord.Y = y;
-                    }
-                    if (pointerTap() && r.Contains(pointer()))
-                    {
-                        guiPointerTapTile = T;
-                        guiPointerTapTileCoord.X = x;
-                        guiPointerTapTileCoord.Y = y;
-                    }
                     if (drawInfo)
                     {
                         if (drawFrame)
@@ -931,11 +986,11 @@ namespace MknGames.Rogue_Words
                         }
 
                         //draw value
-                        Rectangle ra = Split_Screen_Dungeon.Backpack.percentage(r, 0, 3f / 4f, 1, 1f / 4f);
+                        Rectangle ra = Split_Screen_Dungeon.Backpack.percentage(T.rect, 0, 3f / 4f, 1, 1f / 4f);
                         game1.drawString(game1.defaultLargerFont, "" + T.value, ra, fg, new Vector2(0, 1), true);
 
                         //draw letter
-                        Rectangle rb = Split_Screen_Dungeon.Backpack.percentage(r, 0, 0, 1, 3f / 4f);
+                        Rectangle rb = Split_Screen_Dungeon.Backpack.percentage(T.rect, 0, 0, 1, 3f / 4f);
                         char letter = T.letter;
                         //if (T != chainTiles[0])
                         //    letter = char.ToLower(letter);
@@ -953,19 +1008,15 @@ namespace MknGames.Rogue_Words
                     6, radius, 1);
             }
 
-            Rectangle overheadRect = Split_Screen_Dungeon.Backpack.percentage(ViewportRect, 0, 0, 1, 0.1f);
             game1.drawSquare(overheadRect, monochrome(0.5f), 0);
+                Rectf multiplierCircleRect = multiplierRect;
+                multiplierCircleRect.X -= multiplierCircleRect.Width;
+                multiplierCircleRect.Y -= multiplierCircleRect.Height;
+                multiplierCircleRect.Width *= 2;
+                multiplierCircleRect.Height *= 2;
+                game1.drawCircle(multiplierCircleRect, monochrome(0.8f));
 
             //draw multiplier
-            Rectf multiplierRect = Split_Screen_Dungeon.Backpack.percentagef(overheadRect, 0, 0, 1f / 6f, 1);
-            {
-                Rectf r = multiplierRect;
-                r.X -= r.Width;
-                r.Y -= r.Height;
-                r.Width *= 2;
-                r.Height *= 2;
-                game1.drawCircle(r, monochrome(0.8f));
-            }
             Rectf multirtxt = Split_Screen_Dungeon.Backpack.percentagef(multiplierRect, 0, 0.3f, 1, 0.4f);
             Color multic =
                             currentCombo == 0 ? Color.Black :
@@ -976,14 +1027,9 @@ namespace MknGames.Rogue_Words
                             currentCombo == 5 ? Color.Red :
                             Color.Magenta;
             game1.drawStringf(game1.defaultLargerFont, currentCombo + "x", multirtxt, multic, new Vector2(0.25f), true);
-            if(pointerTap() && multiplierRect.ContainsPoint( pointer()))
-            {
-                requestReset = true;
-            }
 
 
             //draw score
-            Rectangle scoreRect = Split_Screen_Dungeon.Backpack.percentage(overheadRect, 5f / 6f, 0, 1f / 6f, 1);
             {
                 Rectf r = scoreRect;
                 //r.X += r.Width;
@@ -994,50 +1040,9 @@ namespace MknGames.Rogue_Words
             }
             Rectangle scoreRectTxt = Split_Screen_Dungeon.Backpack.percentage(scoreRect, 0, 0.3f, 1, 0.4f);
             game1.drawString(game1.defaultLargerFont, "" + score, scoreRectTxt, monochrome(0), new Vector2(0.75f,0), true);
-            if (scoreRect.Contains(pointer()) && pointerTap())
-            {
-                drawReview = !drawReview;
-            }
 
-            Rectf middleRect = overheadRect;
-            middleRect.Width -= scoreRect.Width;
-            middleRect.Width -= multiplierRect.Width;
-            middleRect.X += scoreRect.Width;
-            Rectf returnBtn = Backpack.percentagef(middleRect, 0f, 0.25f, 0.2f, .5f);
             game1.drawSquare(returnBtn, monochrome(0.2f), 0);
             game1.drawStringf(game1.defaultLargerFont, "back", returnBtn, monochrome(1.0f), new Vector2(0.5f), true, 1);
-            if(pointerTap())
-            {
-                int breaker= 0;
-            }
-            if(pointerDown())
-            {
-                int breaker= 0;
-            }
-            if (pointerUpOld())
-            {
-                int breaker = 0;
-            }
-            if(game1.ltap)
-            {
-                int breaker = 0;
-            }
-            if (game1.lmouse)
-            {
-                int breaker = 0;
-            }
-            if (game1.lmouse && !game1.lmouseOld)
-            {
-                int breaker = 0;
-            }
-            if (returnBtn.ContainsPoint(pointerRaw()))
-            {
-                int breaker = 0;
-            }
-            if (returnBtn.ContainsPoint(pointerRaw()) && pointerTap())
-            {
-                rwg.activeScreen = parentScreen;
-            }
 
             // draw chain word
             Rectf mra = Split_Screen_Dungeon.Backpack.percentagef(middleRect, 0, 0, 1, 2f / 3f);
