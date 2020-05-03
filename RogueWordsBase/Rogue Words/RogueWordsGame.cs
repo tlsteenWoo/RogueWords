@@ -12,7 +12,7 @@ using MknGames.Split_Screen_Dungeon;
 
 namespace MknGames
 {
-    public class RogueWordsGame : fuckwhit_no_cursing
+    public class RogueWordsGame : DrawableGameComponentMG
     {
         public bool paused  = false;
         public RogueWordsScreen menuScreen;

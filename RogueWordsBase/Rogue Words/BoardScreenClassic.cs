@@ -56,8 +56,8 @@ namespace MknGames.Rogue_Words
         List<string> discoveredWords = new List<string>();
 
         //inst board
-        int mapW = 7;
-        int mapH = 12;
+        public int mapW = 7;
+        public int mapH = 12;
         public Tile[,] boardTiles;
 
         //inst dictionary
@@ -431,8 +431,13 @@ namespace MknGames.Rogue_Words
             // move player
             if(guiPointerReleaseTile!=null&&guiPointerReleaseTile ==guiPointerTapTile)
             {
-                playerX = guiPointerReleaseTileCoord.X;
-                playerY = guiPointerReleaseTileCoord.Y;
+                int deltaX = playerX - guiPointerReleaseTileCoord.X;
+                int deltaY = playerY - guiPointerReleaseTileCoord.Y;
+                if (Math.Abs(deltaX) + Math.Abs(deltaY) == 1)
+                {
+                    playerX = guiPointerReleaseTileCoord.X;
+                    playerY = guiPointerReleaseTileCoord.Y;
+                }
             }
             if (game1.kclick(Keys.R))
             {
@@ -494,6 +499,8 @@ namespace MknGames.Rogue_Words
 
                 //reset discovered words
                 discoveredWords.Clear();
+
+                rgm.onReset();
             }
             playerMoved = oldPlayerPosition.X != playerX || oldPlayerPosition.Y != playerY;
             if (!playerMoved && requestForcedMove)
@@ -902,6 +909,20 @@ namespace MknGames.Rogue_Words
                     {
                         game1.drawSquare(pos, bg, 0, tileW, tileH);
                     }
+                    //tap tile
+                    Rectangle r = game1.centeredRect(pos, tileW, tileH);
+                    if (pointerRelease() && r.Contains(pointer()))
+                    {
+                        guiPointerReleaseTile = T;
+                        guiPointerReleaseTileCoord.X = x;
+                        guiPointerReleaseTileCoord.Y = y;
+                    }
+                    if (pointerTap() && r.Contains(pointer()))
+                    {
+                        guiPointerTapTile = T;
+                        guiPointerTapTileCoord.X = x;
+                        guiPointerTapTileCoord.Y = y;
+                    }
                     if (drawInfo)
                     {
                         if (drawFrame)
@@ -910,19 +931,6 @@ namespace MknGames.Rogue_Words
                         }
 
                         //draw value
-                        Rectangle r = game1.centeredRect(pos, tileW, tileH);
-                        if(pointerRelease() && r.Contains(pointer()))
-                        {
-                            guiPointerReleaseTile = T;
-                            guiPointerReleaseTileCoord.X = x;
-                            guiPointerReleaseTileCoord.Y = y;
-                        }
-                        if (pointerTap() && r.Contains(pointer()))
-                        {
-                            guiPointerTapTile = T;
-                            guiPointerTapTileCoord.X = x;
-                            guiPointerTapTileCoord.Y = y;
-                        }
                         Rectangle ra = Split_Screen_Dungeon.Backpack.percentage(r, 0, 3f / 4f, 1, 1f / 4f);
                         game1.drawString(game1.defaultLargerFont, "" + T.value, ra, fg, new Vector2(0, 1), true);
 
@@ -998,7 +1006,35 @@ namespace MknGames.Rogue_Words
             Rectf returnBtn = Backpack.percentagef(middleRect, 0f, 0.25f, 0.2f, .5f);
             game1.drawSquare(returnBtn, monochrome(0.2f), 0);
             game1.drawStringf(game1.defaultLargerFont, "back", returnBtn, monochrome(1.0f), new Vector2(0.5f), true, 1);
-            if (returnBtn.ContainsPoint(pointer()) && pointerTap())
+            if(pointerTap())
+            {
+                int breaker= 0;
+            }
+            if(pointerDown())
+            {
+                int breaker= 0;
+            }
+            if (pointerUpOld())
+            {
+                int breaker = 0;
+            }
+            if(game1.ltap)
+            {
+                int breaker = 0;
+            }
+            if (game1.lmouse)
+            {
+                int breaker = 0;
+            }
+            if (game1.lmouse && !game1.lmouseOld)
+            {
+                int breaker = 0;
+            }
+            if (returnBtn.ContainsPoint(pointerRaw()))
+            {
+                int breaker = 0;
+            }
+            if (returnBtn.ContainsPoint(pointerRaw()) && pointerTap())
             {
                 rwg.activeScreen = parentScreen;
             }

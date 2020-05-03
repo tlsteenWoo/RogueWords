@@ -16,6 +16,7 @@ namespace MknGames.Rogue_Words
         //public Viewport viewportFull;
         bool drawHowToPlay = false;
         bool drawCredits = false;
+        public static bool ignoreRequestedSize = false;
 
         //inst options
         int difficulty = 2;
@@ -179,6 +180,7 @@ namespace MknGames.Rogue_Words
         }
         public void ApplyBoardSize()
         {
+            if (ignoreRequestedSize) return;
             switch (boardSize)
             {
                 case 0: //small

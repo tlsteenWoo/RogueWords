@@ -21,6 +21,7 @@ namespace RogueWordsBase
         int score = 0;
         RogueEnemy enemy;
         RogueEnemy player = new RogueEnemy();
+        bool[,] consumed;
 
         public RogueGameMode(BoardScreenClassic classic)
         {
@@ -29,11 +30,19 @@ namespace RogueWordsBase
             bsc.revealNewVisibleFlag = false;
             bsc.consumeCurrentTileFlag = false;
             //for(int i = 0; i < )
+            bsc.mapH = 20;
+            bsc.mapW = 20;
+            MainMenuScreenClassic.ignoreRequestedSize = true;
         }
 
-        public  void onBoardConstruction()
+        public void onReset()
         {
-
+            consumed = new bool[bsc.mapW, bsc.mapH];
+            for (int x = 0; x < bsc.mapW; ++x)
+                for (int y = 0; y < bsc.mapH; ++y)
+                {
+                    consumed[x, y] = bsc.game1.rand.Next(3) == 0;
+                }
         }
 
         public void update()
@@ -56,7 +65,8 @@ namespace RogueWordsBase
                     {
                         t.chain = -1;
                         t.visible = false;
-                        t.consumed = false;
+                        if (consumed != null)
+                            t.consumed = consumed[t.X,t.Y];
                     }
                 }
                 bsc.boardTiles[bsc.playerX, bsc.playerY].chain = 0;

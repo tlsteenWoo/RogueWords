@@ -53,7 +53,7 @@ namespace RogueWordsBase
         {
             get
             {
-                if (letter > 65)
+                if (letter >= 65)
                     return letterValueTable[letter - 65];
                 return 0;
             }
