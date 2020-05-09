@@ -46,7 +46,7 @@ namespace MknGames.Rogue_Words
         //inst collect
         public Queue<Tile> collectionTiles = new Queue<Tile>();
         public float collectionElapsed = 0;
-        float collectionLength = 0.25f;
+        public float collectionDuration = 0.25f;
 
         //inst potential
         List<string> potentialWords = new List<string>();
@@ -66,7 +66,7 @@ namespace MknGames.Rogue_Words
         public Tile[,] boardTiles;
 
         //inst dictionary
-        Dictionary<char, Dictionary<int, Dictionary<string, WordData>>> dictionary;
+        public Dictionary<char, Dictionary<int, Dictionary<string, WordData>>> dictionary;
         Dictionary<int, List<string>> commonWords;
         public int[] commonSizes = { 1, 2, 5, 10, 50 };
         public int targetCommonLevel = 0;
@@ -79,6 +79,7 @@ namespace MknGames.Rogue_Words
         public bool wordBuildFlag = true;
         public bool applyMultiplierFlag = true;
         public bool allowChainingFlag = true;
+        public bool collectOnWordExhaustionFlag = true;
         public bool drawDiscoveredWordsFlag = true;
         bool movesExhausted = false;
         public int assuredBranchLimit = 4;
@@ -118,6 +119,8 @@ namespace MknGames.Rogue_Words
         SoundEffect echoSfx;
 
         //inst gui
+        public float playRectY = 0.15f;
+        public float playRectHeight = 0.85f;
         private Rectangle playRect;
         private float tileH;
         private float tileW;
@@ -127,6 +130,7 @@ namespace MknGames.Rogue_Words
         private Rectangle scoreRect;
         private Rectf returnBtn;
         private Rectf middleRect;
+        public bool drawMultiplierFlag=true;
 
         public BoardScreenClassic(RogueWordsGame Game, MainMenuScreenClassic main, RogueWordsScreen parent) : base(Game)
         {
@@ -428,21 +432,6 @@ namespace MknGames.Rogue_Words
                 playerElapsed -= playerDeadline;
                 requestMoveElimination = true;
             }
-            Func<int, int, bool> invalidMove = (int x, int y) =>
-            {
-                bool result = false;
-                bool inBounds = true;
-                if (x < 0 || x >= mapW || y < 0 || y >= mapH)
-                {
-                    result = true;
-                    inBounds = false;
-                }
-                if (inBounds && boardTiles[x, y].consumed)
-                {
-                    result = true;
-                }
-                return result;
-            };
             //update moveset
             int availableMoves = 0;
             int availableMoveStartI = game1.rand.Next(playerMoves.Length);
@@ -643,7 +632,7 @@ namespace MknGames.Rogue_Words
                     {
                         noMoreWordsElapsed = 0;
                     }
-                    if (potentialWords.Count == 0)
+                    if (potentialWords.Count == 0 && collectOnWordExhaustionFlag)
                     {
                         //if(chainTiles[chainTiles.Count-1].chain > 0)
                         //{
@@ -661,9 +650,9 @@ namespace MknGames.Rogue_Words
             //update collection
             if(collectionTiles.Count > 0)
             {
-                if(collectionElapsed > collectionLength)
+                if(collectionElapsed > collectionDuration)
                 {
-                    collectionElapsed -= collectionLength;
+                    collectionElapsed -= collectionDuration;
                     Tile t = collectionTiles.Dequeue();
                     int value = t.value;
                     if (applyMultiplierFlag)
@@ -731,7 +720,7 @@ namespace MknGames.Rogue_Words
                             int commonLevel = dictionary[randomNab[0]][randomNab.Length][randomNab].commonLevel;
                             if (randomNab.Length != chainWord.Length)
                             {
-                                if (commonLevel < minCommon)
+                                if (commonLevel < minCommon || (game1.rand.Next(10)==0 && commonLevel==minCommon))
                                 {
                                     nextPossible = randomNab;
                                     if (commonLevel >= targetCommonLevel)
@@ -739,10 +728,10 @@ namespace MknGames.Rogue_Words
                                         minCommon = commonLevel;
                                     }
                                 }
-                                if (commonLevel == targetCommonLevel)
-                                {
-                                    break;
-                                }
+                                //if (commonLevel == targetCommonLevel)
+                                //{
+                                //    break;
+                                //}
                             }
                         }
                     }
@@ -762,6 +751,28 @@ namespace MknGames.Rogue_Words
             }
             updateGUI();
             gameMode.OnPostUpdate();
+        }
+        public bool PointInBounds(int x, int y)
+        {
+            if (x < 0 || x >= mapW || y < 0 || y >= mapH)
+            {
+                return false;
+            }
+            return true;
+        }
+        public bool invalidMove (int x, int y)
+        {
+            bool result = false;
+            bool inBounds = PointInBounds(x,y);
+            if (!inBounds)
+            {
+                result = true;
+            }
+            if (inBounds && boardTiles[x, y].consumed)
+            {
+                result = true;
+            }
+            return result;
         }
 
         private void OnPostTileCollected(object v, EventArgs eventArgs)
@@ -789,7 +800,7 @@ namespace MknGames.Rogue_Words
             if (false)
             {
                 requestReset = true;
-                collectionLength = 0;// game1.randf(0.25f);
+                collectionDuration = 0;// game1.randf(0.25f);
                 vowelChance = game1.rand.Next(100);
                 assuredBranchLimit = game1.rand.Next(5);
                 SetSize(game1.rand.Next(1, 30), game1.rand.Next(1, 30));
@@ -879,7 +890,7 @@ namespace MknGames.Rogue_Words
 
         private void updateGUI()
         {
-            playRect = Split_Screen_Dungeon.Backpack.percentage(ViewportRect, 0, 0.15f, 1, 0.85f);
+            playRect = Split_Screen_Dungeon.Backpack.percentage(ViewportRect, 0, playRectY, 1, playRectHeight);
             if (playRect.Bottom != ViewportRect.Bottom)
                 playRect.Height++;
             Vector2 prcenter = playRect.Center.ToVector2();
@@ -1048,7 +1059,7 @@ namespace MknGames.Rogue_Words
                         }
 
                         //draw value
-                        Rectangle ra = Split_Screen_Dungeon.Backpack.percentage(T.rect, 0, 3f / 4f, 1, 1f / 4f);
+                        Rectangle ra = Split_Screen_Dungeon.Backpack.percentage(T.rect, 0.1f, .6f, 1, .4f);
                         game1.drawString(game1.defaultLargerFont, "" + T.value, ra, fg, new Vector2(0, 1), true);
 
                         //draw letter
@@ -1079,16 +1090,19 @@ namespace MknGames.Rogue_Words
                 game1.drawCircle(multiplierCircleRect, monochrome(0.8f));
 
             //draw multiplier
-            Rectf multirtxt = Split_Screen_Dungeon.Backpack.percentagef(multiplierRect, 0, 0.3f, 1, 0.4f);
-            Color multic =
-                            currentCombo == 0 ? Color.Black :
-                            currentCombo == 1 ? Color.LimeGreen :
-                            currentCombo == 2 ? Color.Blue :
-                            currentCombo == 3 ? Color.Yellow :
-                            currentCombo == 4 ? Color.Orange :
-                            currentCombo == 5 ? Color.Red :
-                            Color.Magenta;
-            game1.drawStringf(game1.defaultLargerFont, currentCombo + "x", multirtxt, multic, new Vector2(0.25f), true);
+            if (drawMultiplierFlag)
+            {
+                Rectf multirtxt = Split_Screen_Dungeon.Backpack.percentagef(multiplierRect, 0, 0.3f, 1, 0.4f);
+                Color multic =
+                                currentCombo == 0 ? Color.Black :
+                                currentCombo == 1 ? Color.LimeGreen :
+                                currentCombo == 2 ? Color.Blue :
+                                currentCombo == 3 ? Color.Yellow :
+                                currentCombo == 4 ? Color.Orange :
+                                currentCombo == 5 ? Color.Red :
+                                Color.Magenta;
+                game1.drawStringf(game1.defaultLargerFont, currentCombo + "x", multirtxt, multic, new Vector2(0.25f), true);
+            }
 
 
             //draw score

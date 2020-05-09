@@ -28,6 +28,11 @@ namespace MknGames
             return new Vector2(X + Width/2, Y + Height/2);
         }
 
+        public Vector2 GetLocation()
+        {
+            return new Vector2(X, Y);
+        }
+
         public Vector2 GetSize()
         {
             return new Vector2(Width, Height);

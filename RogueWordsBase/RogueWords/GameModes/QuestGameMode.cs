@@ -21,12 +21,20 @@ namespace RogueWordsBase.RogueWords.GameModes
         int xpTarget = 10;
         int currentHealth = 0;
         int healthMax = 50;
+        int collectionCount;
+        int previousCollectionCount;
+        private string collectionWord;
+        private bool collectionWordFound;
+
         public QuestGameMode(BoardScreenClassic bsc)
         {
             this.bsc = bsc;
             currentHealth = healthMax;
             for (int i = 0; i < bsc.chainColors.Length; ++i)
                 bsc.chainColors[i] = Color.SaddleBrown;
+            bsc.drawDiscoveredWordsFlag = false;
+            bsc.drawMultiplierFlag = false;
+            bsc.collectOnWordExhaustionFlag = false;
         }
 
         public override void OnReset()
@@ -38,6 +46,7 @@ namespace RogueWordsBase.RogueWords.GameModes
         {
             base.OnLoadContent();
             bsc.playerDeadline = 9999;
+            UpdateLevel();
         }
 
         public override void OnUpdate()
@@ -50,8 +59,11 @@ namespace RogueWordsBase.RogueWords.GameModes
             int scoreDelta = currentScore - previousScore;
             if (scoreDelta > 0)
                 scoreGained += scoreDelta;
-            else
-                currentHealth += scoreDelta;
+            CheckDamage();
+            if(currentHealth <= 0)
+            {
+                bsc.rwg.activeScreen = bsc.parentScreen;
+            }
             if(scoreGained > scoreTarget)
             {
                 scoreGained -= scoreTarget;
@@ -60,7 +72,53 @@ namespace RogueWordsBase.RogueWords.GameModes
             if(xp > xpTarget)
             {
                 xp -= xpTarget;
-                bsc.targetCommonLevel=Math.Min(bsc.targetCommonLevel+1,bsc.commonSizes.Length-1);
+                bsc.targetCommonLevel=bsc.targetCommonLevel+1;
+                if (bsc.targetCommonLevel >= bsc.commonSizes.Length)
+                    bsc.rwg.activeScreen = bsc.parentScreen;
+                else
+                    UpdateLevel();
+            }
+            CheckScrolls();
+        }
+        void CheckScrolls()
+        {
+            if(bsc.game1.kclick(Microsoft.Xna.Framework.Input.Keys.D0))
+            {
+                SetVisible(bsc.playerX - 1, bsc.playerY, false);
+                SetVisible(bsc.playerX + 1, bsc.playerY, false);
+                SetVisible(bsc.playerX, bsc.playerY-1, false);
+                SetVisible(bsc.playerX, bsc.playerY+1, false);
+            }
+        }
+        void SetVisible(int x, int y, bool value)
+        {
+            if (bsc.PointInBounds(x, y))
+                bsc.boardTiles[x, y].visible = value;
+        }
+        void CheckDamage()
+        {
+            previousCollectionCount = collectionCount;
+            collectionCount = bsc.collectionTiles.Count;
+            if (previousCollectionCount != collectionCount)
+            {
+                if (previousCollectionCount == 0)
+                {
+                    collectionWord = string.Empty;
+                    for (int i = bsc.collectionTiles.Count-1; i >= 0; --i)
+                    {
+                        collectionWord += bsc.collectionTiles.ElementAt(i).letter;
+                    }
+                    collectionWordFound = false;
+                    if (bsc.dictionary[collectionWord[0]].ContainsKey(collectionWord.Length) && bsc.dictionary[collectionWord[0]][collectionWord.Length].ContainsKey(collectionWord))
+                        collectionWordFound = true;
+                }
+                if (collectionCount > 0)
+                {
+                    if (!collectionWordFound)
+                        currentHealth -= bsc.collectionTiles.First().value;
+                    else
+                        scoreGained += bsc.collectionTiles.First().value;
+                }
             }
         }
         public void UpdateLevel()
@@ -89,39 +147,49 @@ namespace RogueWordsBase.RogueWords.GameModes
                     bsc.assuredBranchLimit = 2;
                     break;
             }
+            bsc.assuredBranchLimit = 1;
         }
         public override void OnDraw()
         {
             base.OnDraw();
             float heightPct = 0.03f;
-            for (int i = 0; i < 3; ++i)
+            var scoreBar = DrawProgressBar(scoreGained, scoreTarget, 0.15f, heightPct);
+            var xpBar = DrawProgressBar(xp, xpTarget, 0.15f + heightPct, heightPct);
+            var hpBar = DrawProgressBar(currentHealth, healthMax, 1 - heightPct, heightPct);
+            if (bsc.collectionTiles.Count > 0)
             {
-                Rectf r = Backpack.percentage(bsc.ViewportRect, 0, 0.15f + heightPct * i, 0.9f, heightPct);
-                bsc.game1.drawSquare(r, Color.Black, 0);
-                float a = scoreGained;
-                float b = scoreTarget;
-                if(i == 1)
+                float progress = bsc.collectionElapsed / bsc.collectionDuration;
+                var tile = bsc.collectionTiles.First();
+                Vector2 va = tile.position;
+                Vector2 vb = scoreBar.GetLocation();
+                Color c = Color.Green;
+                if (!collectionWordFound)
                 {
-                    a = xp;
-                    b = xpTarget;
+                    vb = hpBar.GetLocation();
+                    c = Color.Red;
                 }
-                if(i==2)
-                {
-                    a = currentHealth;
-                    b = healthMax;
-                }
-                float pct = a / b;
-                for (int j = 0; j < a; ++j)
-                {
-                    float ratio = 1 / b;
-                    float pad = 0.001f;
-                    float width = ratio - pad * 2;
-                    Rectf r2 = Backpack.percentagef(r, ratio*j+pad, 0.1f, width, 0.8f);
-                    bsc.game1.drawSquare(r2, Color.Green, 0);
-                }
+                bsc.game1.drawLine(Vector2.Lerp(va, vb, progress - 0.1f), Vector2.Lerp(va, vb, progress), c, 2);
             }
+            bsc.playRectY = xpBar.GetBottom()/bsc.ViewportRect.Height;
+            bsc.playRectHeight = 1 - bsc.playRectY - heightPct;
+
             for(int i = 0; i < bsc.targetCommonLevel + 1;++i)
                 bsc.game1.drawNgon(new Vector2(50 + i * 50, 50), Color.Red, 0, 5, 25, 2);
+        }
+        Rectf DrawProgressBar(float a, float b, float y, float heightPct)
+        {
+            Rectf r = Backpack.percentage(bsc.ViewportRect, 0, y, 1, heightPct);
+            bsc.game1.drawSquare(r, Color.Black, 0);
+            float pct = a / b;
+            for (int j = 0; j < a; ++j)
+            {
+                float ratio = 1 / b;
+                float pad = 0.001f;
+                float width = ratio - pad * 2;
+                Rectf r2 = Backpack.percentagef(r, ratio * j + pad, 0.1f, width, 0.8f);
+                bsc.game1.drawSquare(r2, Color.Green, 0);
+            }
+            return r;
         }
     }
 }

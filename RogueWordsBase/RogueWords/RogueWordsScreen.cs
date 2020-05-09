@@ -12,7 +12,7 @@ namespace MknGames.Rogue_Words
 {
     public abstract class RogueWordsScreen
     {
-        protected RogueWordsGame rwg;
+        public RogueWordsGame rwg;
         public Matrix spritebatchMatrix = Matrix.Identity;
         public GameMG game1
         {
