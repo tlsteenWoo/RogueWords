@@ -183,14 +183,20 @@ namespace MknGames
             //toiletGuy = Content.Load<Texture2D>("toilet");
             //lockBack = Content.Load<Texture2D>("LockBack");
             //lockFront = Content.Load<Texture2D>("LockFront");
-            circleTexture = Content.Load<Texture2D>("Sprites/circle-1024");
-            diagonalTexture = Content.Load<Texture2D>("Sprites/diagonal");
-            cubeModel = Content.Load<Model>("Cube");
-            sphereModel = Content.Load<Model>("Sphere");
-            planeModel = Content.Load<Model>("Plane");
-            //load fonts
-            defaultFont = Content.Load<SpriteFont>("default");
-            defaultLargerFont = Content.Load<SpriteFont>("default-larger");
+            try
+            {
+                circleTexture = Content.Load<Texture2D>("Sprites/circle-1024");
+                diagonalTexture = Content.Load<Texture2D>("Sprites/diagonal");
+                cubeModel = Content.Load<Model>("Cube");
+                sphereModel = Content.Load<Model>("Sphere");
+                planeModel = Content.Load<Model>("Plane");
+                //load fonts
+                defaultFont = Content.Load<SpriteFont>("default");
+                defaultLargerFont = Content.Load<SpriteFont>("default-larger");
+            }catch(Exception e)
+            {
+                System.Diagnostics.Debugger.Break();
+            }
         }
 
         /// <summary>

@@ -55,20 +55,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Rogue Words\BoardLogicClassic.cs" />
-    <Compile Include="Rogue Words\BoardScreen.cs" />
-    <Compile Include="Rogue Words\BoardScreenClassic.cs" />
-    <Compile Include="Rogue Words\CustomRulesScreenClassic.cs" />
-    <Compile Include="Rogue Words\MainMenuScreenClassic.cs" />
-    <Compile Include="Rogue Words\MenuScreen.cs" />
-    <Compile Include="Rogue Words\PlayScreenClassic.cs" />
-    <Compile Include="Rogue Words\RogueGameMode.cs" />
-    <Compile Include="Rogue Words\RogueWordBrain.cs" />
-    <Compile Include="Rogue Words\RogueWordsGame.cs" />
-    <Compile Include="Rogue Words\RogueWordsGameMG.cs" />
-    <Compile Include="Rogue Words\RogueWordsScreen.cs" />
-    <Compile Include="Rogue Words\Tile.cs" />
-    <Compile Include="Rogue Words\WordListProcessor.cs" />
+    <Compile Include="RogueWords\BoardLogicClassic.cs" />
+    <Compile Include="RogueWords\BoardScreen.cs" />
+    <Compile Include="RogueWords\BoardScreenClassic.cs" />
+    <Compile Include="RogueWords\CustomRulesScreenClassic.cs" />
+    <Compile Include="RogueWords\GameModes\QuestGameMode.cs" />
+    <Compile Include="RogueWords\MainMenuScreenClassic.cs" />
+    <Compile Include="RogueWords\MenuScreen.cs" />
+    <Compile Include="RogueWords\PlayScreenClassic.cs" />
+    <Compile Include="RogueWords\RogueGameMode.cs" />
+    <Compile Include="RogueWords\RogueWordBrain.cs" />
+    <Compile Include="RogueWords\RogueWordsGame.cs" />
+    <Compile Include="RogueWords\RogueWordsGameMG.cs" />
+    <Compile Include="RogueWords\RogueWordsScreen.cs" />
+    <Compile Include="RogueWords\Tile.cs" />
+    <Compile Include="RogueWords\WordListProcessor.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MakinGames\MakinGames\MakinGames.csproj">

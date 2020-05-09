@@ -47,7 +47,6 @@ namespace MknGames.Rogue_Words
 
         public MainMenuScreenClassic(RogueWordsGame Game) : base(Game)
         {
-            board = new BoardScreenClassic(Game, this, this);
             custom = new CustomRulesScreenClassic(Game, this);
         }
 
@@ -129,10 +128,9 @@ namespace MknGames.Rogue_Words
             if (Banner(1).Contains(pointer()) && pointerTap())
             {
                 //using(StreamWriter writer = new StreamWriter("main-menu-settings.txt")_
-                if(!board.loaded)
-                board.LoadContent();
+                board = new BoardScreenClassic(rwg, this, this);
                 board.requestReset = true;
-                switch(difficulty)
+                switch (difficulty)
                 {
                     case 0: //too easy
                         board.assuredBranchLimit = 4;
@@ -160,6 +158,8 @@ namespace MknGames.Rogue_Words
                         board.playerDeadline = 2;
                         break;
                 }
+                if (!board.loaded)
+                    board.LoadContent();
                 ApplyBoardSize();
                 ////////// rapid autoplay
                 //board.playerDeadline = 0;

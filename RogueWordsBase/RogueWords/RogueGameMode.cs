@@ -10,18 +10,51 @@ namespace RogueWordsBase
 {
     public class RogueEnemy
     {
-        public int hp = 50;
+        public string name = "Rat";
+        public int hp = 10;
     }
-    public class RogueGameMode
+    public class RogueWordsGameMode
+    {
+        bool loaded = false;
+        public virtual void OnReset()
+        {
+
+        }
+        public virtual void OnLoadContent()
+        {
+            loaded = true;
+        }
+        public virtual void OnUpdate()
+        {
+            if (!loaded)
+                OnLoadContent();
+        }
+        public virtual void OnPostUpdate()
+        {
+
+        }
+        public virtual void OnDraw()
+        {
+
+        }
+    }
+    public class RogueGameMode:RogueWordsGameMode
     {
         BoardScreenClassic bsc;
         bool inBattle = false;
         int battleState = 0;
         int previousScore = 0;
         int score = 0;
+        int preBattleX = 0;
+        int preBattleY = 0;
+        int exitX;
+        int exitY;
+        int randomBattlePseudoChance;
+        int randomBattleChance = 50;
         RogueEnemy enemy;
-        RogueEnemy player = new RogueEnemy();
+        RogueEnemy player = new RogueEnemy() { hp = 50 };
         bool[,] consumed;
+        bool[,] savedConsumed;
 
         public RogueGameMode(BoardScreenClassic classic)
         {
@@ -31,13 +64,15 @@ namespace RogueWordsBase
             bsc.consumeCurrentTileFlag = false;
             bsc.applyMultiplierFlag = false;
             bsc.allowChainingFlag = false;
+            bsc.drawDiscoveredWordsFlag = false;
             //for(int i = 0; i < )
             bsc.mapH = 50;
             bsc.mapW = 50;
             MainMenuScreenClassic.ignoreRequestedSize = true;
+            randomBattlePseudoChance = randomBattleChance;
         }
 
-        public void onReset()
+        public override void OnReset()
         {
             consumed = new bool[bsc.mapW, bsc.mapH];
             for (int x = 0; x < bsc.mapW; ++x)
@@ -47,7 +82,7 @@ namespace RogueWordsBase
                 }
         }
 
-        public void update()
+        public override void OnUpdate()
         {
             previousScore = score;
             score = bsc.score;
@@ -77,8 +112,18 @@ namespace RogueWordsBase
                 bsc.boardTiles[bsc.playerX, bsc.playerY].consumed = true;
                 if (bsc.playerMoved)
                 {
-                    if (bsc.game1.rand.Next(10) == 0)
+                    if (bsc.game1.rand.Next(randomBattlePseudoChance) == 0)
+                    {
                         inBattle = true;
+                        preBattleX = bsc.playerX;
+                        preBattleY = bsc.playerY;
+                        savedConsumed = consumed;
+                        randomBattlePseudoChance = randomBattleChance;
+                    }
+                    else
+                    {
+                        randomBattlePseudoChance--;
+                    }
                 }
             }
             else
@@ -89,6 +134,19 @@ namespace RogueWordsBase
                         battleState++;
                         bsc.boardTiles[bsc.oldPlayerPosition.X, bsc.oldPlayerPosition.Y].chain = -1;
                         enemy = new RogueEnemy();
+                        switch(bsc.game1.rand.Next(4))
+                        {
+                            case 0:
+                            case 1:
+                            case 2:
+                                enemy.name = "Rat";
+                                enemy.hp = 10;
+                                break;
+                            case 3:
+                                enemy.name = "Crocodile";
+                                enemy.hp = 20;
+                                break;
+                        }
                         bsc.requestReset = true;
                         bsc.wordBuildFlag = false;
                         break;
@@ -105,6 +163,9 @@ namespace RogueWordsBase
                 {
                     battleState = 0;
                     inBattle = false;
+                    bsc.playerX = preBattleX;
+                    bsc.playerY = preBattleY;
+                    consumed = savedConsumed;
                 }
                 if(previousScore != score)
                 {
@@ -119,7 +180,7 @@ namespace RogueWordsBase
             }
         }
 
-        public void postUpdate()
+        public override void OnPostUpdate()
         {
             if(battleState == 1)
             {
@@ -128,10 +189,12 @@ namespace RogueWordsBase
             }
         }
 
-        public void Draw()
+        public override void OnDraw()
         {
             if(inBattle && enemy != null)
-            bsc.game1.drawString("HP: " + enemy.hp, new Microsoft.Xna.Framework.Rectangle(0, 0, 300, 200), Color.Red, new Vector2(0.5f), true);
+                bsc.game1.drawString("HP: " + enemy.hp, new Microsoft.Xna.Framework.Rectangle(0, 0, 300, 200), Color.Red, new Vector2(0.5f), true);
+            if(inBattle)
+            bsc.game1.drawString("HP: " + player.hp, new Microsoft.Xna.Framework.Rectangle(0, 200, 300, 200), Color.Green, new Vector2(0.5f), true);
         }
     }
 }
