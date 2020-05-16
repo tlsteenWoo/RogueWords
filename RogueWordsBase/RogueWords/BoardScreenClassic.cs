@@ -11,6 +11,7 @@ using MknGames.Split_Screen_Dungeon;
 using Microsoft.Xna.Framework.Audio;
 using RogueWordsBase;
 using RogueWordsBase.RogueWords.GameModes;
+using RogueWordsBase.RogueWords;
 
 namespace MknGames.Rogue_Words
 {
@@ -50,6 +51,7 @@ namespace MknGames.Rogue_Words
 
         //inst potential
         List<string> potentialWords = new List<string>();
+        Dictionary<char, List<string>> potentialWordTable = new Dictionary<char, List<string>>();
         int lastPotentialWordCount;
 
         //inst scoring
@@ -511,6 +513,7 @@ namespace MknGames.Rogue_Words
 
                 //reset potential
                 potentialWords.Clear();
+                potentialWordTable.Clear();
                 lastPotentialWordCount = 0;
 
                 //reset chain (this must be reset before PullLetter is called again)
@@ -683,6 +686,7 @@ namespace MknGames.Rogue_Words
             //int nextPossiblei = 0;
             int assuredBrachCount = 0;
             int offsetVis = game1.rand.Next();
+            List<char> existingLetters = new List<char>();
             for (int i = 0; i < oldVisible.Length; ++i)
             {
                 int v = (offsetVis + i) % oldVisible.Length; //visible tile index
@@ -701,45 +705,14 @@ namespace MknGames.Rogue_Words
                         (potentialWords.Count > 1 ||
                         (potentialWords.Count == 1 && potentialWords[0].Length > chainWord.Length)))
                     {
-                        //nextPossible = potentialWords[nextPossiblei++];
-                        //if (nextPossiblei >= potentialWords.Count)
-                        //    nextPossiblei = 0;
-                        //if (nextPossible.Length == chainWord.Length)
-                        //{
-                        //    nextPossible = potentialWords[nextPossiblei++];
-                        //    if (nextPossiblei >= potentialWords.Count)
-                        //        nextPossiblei = 0;
-                        //}
-                        string randomNab = null;
-                        int randomStart = game1.rand.Next(potentialWords.Count);
-                        int minCommon = int.MaxValue;
-                        for(int j = 0; j < potentialWords.Count;++j)
-                        {
-                            int index = (randomStart + j) % potentialWords.Count;
-                            randomNab = potentialWords[index];
-                            int commonLevel = dictionary[randomNab[0]][randomNab.Length][randomNab].commonLevel;
-                            if (randomNab.Length != chainWord.Length)
-                            {
-                                if (commonLevel < minCommon || (game1.rand.Next(10)==0 && commonLevel==minCommon))
-                                {
-                                    nextPossible = randomNab;
-                                    if (commonLevel >= targetCommonLevel)
-                                    {
-                                        minCommon = commonLevel;
-                                    }
-                                }
-                                //if (commonLevel == targetCommonLevel)
-                                //{
-                                //    break;
-                                //}
-                            }
-                        }
+                        nextPossible = GetNextPossibleWord(existingLetters);
                     }
                     if (!newvis.visible)
                     {
                         newvis.letter = PullLetter(nextPossible);
                         if(nextPossible != null)
                         {
+                            existingLetters.Add(newvis.letter);
                             assuredBrachCount++;
                         }
                     }
@@ -751,6 +724,52 @@ namespace MknGames.Rogue_Words
             }
             updateGUI();
             gameMode.OnPostUpdate();
+        }
+        public string GetNextPossibleWord(List<char> existingLetters)
+        {
+            string nextPossible = null;
+            //nextPossible = potentialWords[nextPossiblei++];
+            //if (nextPossiblei >= potentialWords.Count)
+            //    nextPossiblei = 0;
+            //if (nextPossible.Length == chainWord.Length)
+            //{
+            //    nextPossible = potentialWords[nextPossiblei++];
+            //    if (nextPossiblei >= potentialWords.Count)
+            //        nextPossiblei = 0;
+            //}
+            string randomNab = null;
+            int randomStart = game1.rand.Next(potentialWords.Count);
+            int minCommon = int.MaxValue;
+            bool newLetterFound = false;
+            for (int j = 0; j < potentialWords.Count; ++j)
+            {
+                int index = (randomStart + j) % potentialWords.Count;
+                randomNab = potentialWords[index];
+                int commonLevel = dictionary[randomNab[0]][randomNab.Length][randomNab].commonLevel;
+                if (randomNab.Length != chainWord.Length)
+                {
+                    char letter = randomNab[chainWord.Length];
+                    bool commonEnough = commonLevel < minCommon || (game1.rand.Next(10) == 0 && commonLevel == minCommon);
+                    bool betterLetter = !newLetterFound && !existingLetters.Contains(letter);
+                    bool asGoodLetter = newLetterFound && !existingLetters.Contains(letter);
+                    bool goodLetter = betterLetter || asGoodLetter;
+                    if (commonEnough && goodLetter)
+                    {
+                        if (betterLetter)
+                            newLetterFound = true;
+                        nextPossible = randomNab;
+                        if (commonLevel >= targetCommonLevel)
+                        {
+                            minCommon = commonLevel;
+                        }
+                    }
+                    //if (commonLevel == targetCommonLevel)
+                    //{
+                    //    break;
+                    //}
+                }
+            }
+            return nextPossible;
         }
         public bool PointInBounds(int x, int y)
         {
@@ -824,6 +843,7 @@ namespace MknGames.Rogue_Words
         {
             lastPotentialWordCount = potentialWords.Count;
             potentialWords.Clear();
+            potentialWordTable.Clear();
             int s = game1.rand.Next(charcountTable.Keys.Count); //starting index
             for (int i = 0; i < charcountTable.Keys.Count; ++i) //use for loop to iterate
             {
@@ -846,6 +866,13 @@ namespace MknGames.Rogue_Words
                     if (match)
                     {
                         potentialWords.Add(word.Key); //a 100% match is still a potential word
+                        if (word.Key.Length >= chainWord.Length+1)
+                        {
+                            char letter = word.Key[chainWord.Length];
+                            if (!potentialWordTable.ContainsKey(letter))
+                                potentialWordTable.Add(letter, new List<string>());
+                            potentialWordTable[letter].Add(word.Key);
+                        }
                     }
                 }
                 //if (potentialWords.Count >= 4) //small optimization we only need enough for each of the four directions
@@ -975,7 +1002,8 @@ namespace MknGames.Rogue_Words
 
             float et = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            game1.GraphicsDevice.Clear(Color.Magenta);
+            //game1.GraphicsDevice.Clear(Color.Magenta);
+            //game1.clearColor = Color.Magenta;
 
             game1.drawSquare(ViewportRect, Color.LimeGreen, 0);
 
@@ -1050,7 +1078,6 @@ namespace MknGames.Rogue_Words
                     {
                         game1.drawSquare(pos, bg, 0, tileW, tileH);
                     }
-                    //tap tile
                     if (drawInfo)
                     {
                         if (drawFrame)
@@ -1170,6 +1197,29 @@ namespace MknGames.Rogue_Words
             game1.drawString(game1.defaultLargerFont, alertText, alertr, monochrome(1.0f), new Vector2(0.5f), true);
 
             gameMode.OnDraw();
+            //Draw3DBoard.Draw(this);
+            //{
+            //    var bsc = this;
+            //    var sb = game1.spriteBatch;
+            //    Matrix view = Matrix.Identity;
+            //    Matrix projection = Matrix.CreateOrthographic(bsc.ViewportRect.Width, bsc.ViewportRect.Height, 0.01f, 100);
+            //    //game1.GraphicsDevice.Clear(Color.Black);
+            //    game1.drawString("TEST", new Rectangle(0, 0, 200, 200), Color.Red);
+            //    game1.GraphicsDevice.Clear(Color.Black);
+            //    for (int x = 0; x < bsc.boardTiles.GetLength(0); ++x)
+            //    {
+            //        for (int y = 0; y < bsc.boardTiles.GetLength(1); ++y)
+            //        {
+            //            var tile = bsc.boardTiles[x, y];
+            //            game1.DrawModel(
+            //                game1.cubeModel,
+            //                Matrix.CreateScale(tile.rect.Width, tile.rect.Height, 1) *
+            //                Matrix.CreateTranslation(tile.position.X, tile.position.Y, -10),
+            //                view, projection, Color.White);
+            //        }
+            //    }
+            //    game1.cubeModel.Draw(Matrix.CreateScale(5) * Matrix.CreateTranslation(0, 0, -10), view, projection);
+            //}
 
             if (drawReview)
             {
@@ -1228,6 +1278,8 @@ namespace MknGames.Rogue_Words
                     game1.drawString(game1.defaultLargerFont, text, drawr, monochrome(0), Vector2.Zero, true);
                 }
             }
+
+            //game1.GraphicsDevice.Clear(Color.Black);
         }
     }
 }

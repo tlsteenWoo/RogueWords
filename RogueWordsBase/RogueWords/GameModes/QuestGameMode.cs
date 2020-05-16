@@ -147,7 +147,7 @@ namespace RogueWordsBase.RogueWords.GameModes
                     bsc.assuredBranchLimit = 2;
                     break;
             }
-            bsc.assuredBranchLimit = 1;
+            //bsc.assuredBranchLimit = 1;
         }
         public override void OnDraw()
         {

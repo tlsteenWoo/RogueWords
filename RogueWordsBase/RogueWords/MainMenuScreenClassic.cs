@@ -327,7 +327,7 @@ verbatim.
             {
                 drawCredits = false;
             }
-
+            
             //draw cursor
             //game1.drawSquare(pointer(), Color.Red, 0, 10, 10);
         }
