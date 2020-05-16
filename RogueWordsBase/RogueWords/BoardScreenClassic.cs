@@ -56,8 +56,8 @@ namespace MknGames.Rogue_Words
 
         //inst scoring
         int currentCombo = 0;
-        public int score = 0;
-        int scoreHigh = 0;
+        public float score = 0;
+        float scoreHigh = 0;
 
         //inst discovery
         List<string> discoveredWords = new List<string>();
@@ -83,6 +83,8 @@ namespace MknGames.Rogue_Words
         public bool allowChainingFlag = true;
         public bool collectOnWordExhaustionFlag = true;
         public bool drawDiscoveredWordsFlag = true;
+        public bool provideBadUnassuredFlag = true;
+        public bool setMultiplierToCurrentComboFlag = true;
         bool movesExhausted = false;
         public int assuredBranchLimit = 4;
         public float vowelChance = 50;
@@ -128,7 +130,7 @@ namespace MknGames.Rogue_Words
         private float tileW;
         private Vector2 tileOffset;
         private Rectangle overheadRect;
-        private Rectf multiplierRect;
+        public Rectf multiplierRect;
         private Rectangle scoreRect;
         private Rectf returnBtn;
         private Rectf middleRect;
@@ -139,7 +141,8 @@ namespace MknGames.Rogue_Words
             this.mainMenu = main;
             this.parentScreen = parent;
             //gameMode = new RogueGameMode(this);
-            gameMode = new QuestGameMode(this);
+            //gameMode = new QuestGameMode(this);
+            gameMode = new LinearGameMode(this);
 
             //construct board
             ConstructBoard();
@@ -620,7 +623,7 @@ namespace MknGames.Rogue_Words
                                     t.chain++;
                                 if (!allowChainingFlag)
                                 {
-                                    t.chain = Math.Min(1, t.chain);
+                                    t.chain = Math.Min(0, t.chain);
                                 }
                             }
                                 currentCombo++;
@@ -657,11 +660,11 @@ namespace MknGames.Rogue_Words
                 {
                     collectionElapsed -= collectionDuration;
                     Tile t = collectionTiles.Dequeue();
-                    int value = t.value;
+                    float value = t.value;
                     if (applyMultiplierFlag)
-                        value *= t.chain;
-                    if (t.chain == 0)
-                        value = -value;
+                        value *= t.collectionMultiplier;
+                    //if (t.chain == 0)
+                    //    value = -value;
                     t.chain = -1;
                     score += value;
                     OnPostTileCollected((object)this, new EventArgs());
@@ -833,11 +836,48 @@ namespace MknGames.Rogue_Words
             {
                 return potentialWord[chainWord.Length];
             }
+            if(provideBadUnassuredFlag)
+            {
+                char badLetter = PullBadLetter();
+                if (badLetter != '\0')
+                    return badLetter;
+            }
             if (game1.rand.Next(100) < vowelChance)
             {
                 return vowels[game1.rand.Next(vowels.Length)];
             }
             return dictionary.Keys.ElementAt(game1.rand.Next(dictionary.Keys.Count));
+        }
+        public char PullBadLetter()
+        {
+            int randOffset = game1.rand.Next(26);
+            bool foundBadLetter = false;
+            char badLetter = '\0';
+            int minPossibilities = int.MaxValue;
+            char minLetter = '\0';
+            for(int i = 0; i < 26; ++i)
+            {
+                int index = (i + randOffset) % 26;
+                char letter = (char)(65 + index);
+                if(!potentialWordTable.ContainsKey(letter))
+                {
+                    badLetter = letter;
+                    foundBadLetter = true;
+                }
+                else
+                {
+                    if(potentialWordTable[letter].Count < minPossibilities)
+                    {
+                        minPossibilities = potentialWordTable[letter].Count;
+                        minLetter = letter;
+                    }
+                }
+            }
+            if (foundBadLetter)
+                return badLetter;
+            if (minPossibilities < int.MaxValue)
+                return minLetter;
+            return '\0';
         }
         public void UpdateWordPotential(Dictionary<int, Dictionary<string, WordData>> charcountTable)
         {
@@ -898,7 +938,10 @@ namespace MknGames.Rogue_Words
                 //score += t.value * scoreMultiplier;
                 if (t.chain > 0)
                 {
-                    t.collectionMultiplier = currentCombo;
+                    if (setMultiplierToCurrentComboFlag)
+                    {
+                        t.collectionMultiplier = currentCombo;
+                    }
                     t.chain = currentCombo;
                 }
                 chainTiles.RemoveAt(c);
@@ -1049,7 +1092,10 @@ namespace MknGames.Rogue_Words
                         {
                             drawInfo = true;
                             if (T.consumed)
+                            {
                                 drawFrame = true;
+                                drawInfo = false;
+                            }
                             else
                                 drawRoundedSquare = true;
                         }
@@ -1078,13 +1124,12 @@ namespace MknGames.Rogue_Words
                     {
                         game1.drawSquare(pos, bg, 0, tileW, tileH);
                     }
+                    if (drawFrame)
+                    {
+                        game1.drawFrame(pos, fg, tileW, tileH, 1);
+                    }
                     if (drawInfo)
                     {
-                        if (drawFrame)
-                        {
-                            game1.drawFrame(pos, fg, tileW, tileH, 1);
-                        }
-
                         //draw value
                         Rectangle ra = Split_Screen_Dungeon.Backpack.percentage(T.rect, 0.1f, .6f, 1, .4f);
                         game1.drawString(game1.defaultLargerFont, "" + T.value, ra, fg, new Vector2(0, 1), true);

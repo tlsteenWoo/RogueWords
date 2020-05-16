@@ -14,9 +14,9 @@ namespace RogueWordsBase.RogueWords.GameModes
     {
         BoardScreenClassic bsc;
         int scoreTarget = 10;
-        int scoreGained = 0;
-        int previousScore = 0;
-        int currentScore = 0;
+        float scoreGained = 0;
+        float previousScore = 0;
+        float currentScore = 0;
         int xp = 0;
         int xpTarget = 10;
         int currentHealth = 0;
@@ -26,9 +26,8 @@ namespace RogueWordsBase.RogueWords.GameModes
         private string collectionWord;
         private bool collectionWordFound;
 
-        public QuestGameMode(BoardScreenClassic bsc)
+        public QuestGameMode(BoardScreenClassic boardsc):base(boardsc)
         {
-            this.bsc = bsc;
             currentHealth = healthMax;
             for (int i = 0; i < bsc.chainColors.Length; ++i)
                 bsc.chainColors[i] = Color.SaddleBrown;
@@ -56,7 +55,7 @@ namespace RogueWordsBase.RogueWords.GameModes
                 bsc.Collect(0);
             previousScore = currentScore;
             currentScore = bsc.score;
-            int scoreDelta = currentScore - previousScore;
+            float scoreDelta = currentScore - previousScore;
             if (scoreDelta > 0)
                 scoreGained += scoreDelta;
             CheckDamage();
@@ -175,21 +174,6 @@ namespace RogueWordsBase.RogueWords.GameModes
 
             for(int i = 0; i < bsc.targetCommonLevel + 1;++i)
                 bsc.game1.drawNgon(new Vector2(50 + i * 50, 50), Color.Red, 0, 5, 25, 2);
-        }
-        Rectf DrawProgressBar(float a, float b, float y, float heightPct)
-        {
-            Rectf r = Backpack.percentage(bsc.ViewportRect, 0, y, 1, heightPct);
-            bsc.game1.drawSquare(r, Color.Black, 0);
-            float pct = a / b;
-            for (int j = 0; j < a; ++j)
-            {
-                float ratio = 1 / b;
-                float pad = 0.001f;
-                float width = ratio - pad * 2;
-                Rectf r2 = Backpack.percentagef(r, ratio * j + pad, 0.1f, width, 0.8f);
-                bsc.game1.drawSquare(r2, Color.Green, 0);
-            }
-            return r;
         }
     }
 }

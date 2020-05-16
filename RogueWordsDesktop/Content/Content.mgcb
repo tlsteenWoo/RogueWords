@@ -13,11 +13,41 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Sounds/bells.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/bells.wav
+
+#begin Sounds/bells-echo.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/bells-echo.wav
+
 #begin Sounds/scrabble-place-piece-0.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Sounds/scrabble-place-piece-0.wav
+
+#begin Sounds/scrabble-place-rack.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/scrabble-place-rack.wav
+
+#begin Sprites/bar.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/bar.png
 
 #begin Sprites/circle-512.png
 /importer:TextureImporter
@@ -30,22 +60,4 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/circle-512.png
-
-#begin Sounds/bells-echo.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:Sounds/bells-echo.wav
-
-#begin Sounds/scrabble-place-rack.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:Sounds/scrabble-place-rack.wav
-
-#begin Sounds/bells.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:Sounds/bells.wav
 

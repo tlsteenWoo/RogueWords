@@ -13,7 +13,7 @@ namespace RogueWordsBase
         public bool consumed;
         public bool visible;
         public int chain;
-        public int collectionMultiplier;
+        public float collectionMultiplier;
         public int X;
         public int Y;
         internal Vector2 position;

@@ -108,6 +108,18 @@
 /processorParam:TextureFormat=Compressed
 /build:Sphere.fbx
 
+#begin Sprites/bar.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/bar.png
+
 #begin Sprites/circle-1024.png
 /importer:TextureImporter
 /processor:TextureProcessor

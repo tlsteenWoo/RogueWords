@@ -60,6 +60,7 @@
     <Compile Include="RogueWords\BoardScreenClassic.cs" />
     <Compile Include="RogueWords\CustomRulesScreenClassic.cs" />
     <Compile Include="RogueWords\Draw3DBoard.cs" />
+    <Compile Include="RogueWords\GameModes\LinearGameMode.cs" />
     <Compile Include="RogueWords\GameModes\QuestGameMode.cs" />
     <Compile Include="RogueWords\MainMenuScreenClassic.cs" />
     <Compile Include="RogueWords\MenuScreen.cs" />
