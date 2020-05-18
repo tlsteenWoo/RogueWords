@@ -15,11 +15,12 @@ namespace MknGames
     public class RogueWordsGame : DrawableGameComponentMG
     {
         public bool paused  = false;
-        public RogueWordsScreen menuScreen;
+        public bool isDesktop = false;
+        public MainMenuScreenClassic menuScreen;
         //public RogueWordsScreen boardScreen;
         public RogueWordsScreen activeScreen;
 
-        public RogueWordsGame(GameMG game) : base(game)
+        public RogueWordsGame(GameMG game, bool isMobile) : base(game)
         {
             menuScreen = new MainMenuScreenClassic(this);
             //menuScreen = new MenuScreen(this);
@@ -28,6 +29,7 @@ namespace MknGames
             //activeScreen = boardScreen;
             game1.IsMouseVisible = false;
             //activeScreen = menuScreen;
+            isDesktop = !isMobile;
             game1.Exiting += GameMG_Exiting;
         }
 

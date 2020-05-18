@@ -111,16 +111,19 @@ namespace MknGames.Rogue_Words
         Point guiPointerTapTileCoord = new Point();
 
         //inst animation
-        float noMoreWordsElapsed;
+        float noMoreWordsElapsed=200;
         float noMoreWordsDuration = 2;
         float totalWordDuration = 2;
-        float totalWordElapsed;
+        float totalWordElapsed=200;
 
         //inst sound
         SoundEffect placeTileSfx;
         SoundEffect bellSfx;
         SoundEffect pickupSfx;
         SoundEffect echoSfx;
+
+        //inst models
+        public Model roundedTileModel;
 
         //inst gui
         public float playRectY = 0.15f;
@@ -135,6 +138,9 @@ namespace MknGames.Rogue_Words
         private Rectf returnBtn;
         private Rectf middleRect;
         public bool drawMultiplierFlag=true;
+        public bool drawNoMoreWordsFlag=true;
+        private Rectf upperMiddleRect;
+        public Rectf chainWordRect;
 
         public BoardScreenClassic(RogueWordsGame Game, MainMenuScreenClassic main, RogueWordsScreen parent) : base(Game)
         {
@@ -309,6 +315,9 @@ namespace MknGames.Rogue_Words
                             int frequency = 0;
                             if (tokens.Length > 1)
                                 frequency = int.Parse(tokens[1]);
+                            int baiduFrequency = 0;
+                            if (tokens.Length > 2)
+                                baiduFrequency = int.Parse(tokens[2]);
                             AddCommonWord(word, frequency);
                         }
                     } //end using reader
@@ -363,6 +372,7 @@ namespace MknGames.Rogue_Words
                 bellSfx = game1.Content.Load<SoundEffect>("Sounds/bells");
                 echoSfx = game1.Content.Load<SoundEffect>("Sounds/bells-echo");
                 pickupSfx = game1.Content.Load<SoundEffect>("Sounds/scrabble-place-rack");
+                roundedTileModel = game1.Content.Load<Model>("Models/rounded-tile");
             }catch(Exception e)
             {
                 System.Diagnostics.Debugger.Break();
@@ -380,52 +390,52 @@ namespace MknGames.Rogue_Words
             gameMode.OnUpdate();
 
             //update gameplay
-            if(guiPointerTapTile != guiPointerReleaseTile && 
-                guiPointerTapTile != null && 
-                guiPointerReleaseTile != null)
-            {
-                //swap tile
-                Tile a = guiPointerTapTile;
-                Point direction = guiPointerReleaseTileCoord - guiPointerTapTileCoord;
-                Tile b = guiPointerReleaseTile;
-                //Tile b = guiPointerReleaseTile;
-                Tile player = boardTiles[playerX, playerY];
-                int distance = Math.Abs(guiPointerReleaseTileCoord.X - guiPointerTapTileCoord.X) +
-                    Math.Abs(guiPointerReleaseTileCoord.Y - guiPointerTapTileCoord.Y);
-                if (distance == 1 && (a == player || b == player))
-                {
-                    char letterA = a.letter;
-                    a.letter = b.letter;
-                    b.letter = letterA;
-                    //chainWord[chainWord.Length-1] = 
-                    //int combo = 0;
-                    if (chainTiles.Count > 0)
-                    {
-                    Dictionary<int, Dictionary<string, WordData>> charcountTable = dictionary[chainTiles[0].letter];
-                        chainWord = "";
-                        int combo = 0;
-                        for (int i = 0; i < chainTiles.Count; ++i)
-                        {
-                            chainWord += chainTiles[i].letter;
-                            chainTiles[i].chain = 0;
-                            if (charcountTable.ContainsKey(chainWord.Length))
-                            {
-                                Dictionary<string, WordData> words = charcountTable[chainWord.Length];
-                                if (words.ContainsKey(chainWord))
-                                {
-                                    combo++;
-                                    for (int j = i; j >= 0; --j)
-                                    {
-                                        chainTiles[j].chain++;
-                                    }
-                                }
-                            }
-                        }
-                        currentCombo = combo;
-                    }
-                }
+            //if(guiPointerTapTile != guiPointerReleaseTile && 
+            //    guiPointerTapTile != null && 
+            //    guiPointerReleaseTile != null)
+            //{
+            //    //swap tile
+            //    Tile a = guiPointerTapTile;
+            //    Point direction = guiPointerReleaseTileCoord - guiPointerTapTileCoord;
+            //    Tile b = guiPointerReleaseTile;
+            //    //Tile b = guiPointerReleaseTile;
+            //    Tile player = boardTiles[playerX, playerY];
+            //    int distance = Math.Abs(guiPointerReleaseTileCoord.X - guiPointerTapTileCoord.X) +
+            //        Math.Abs(guiPointerReleaseTileCoord.Y - guiPointerTapTileCoord.Y);
+            //    if (distance == 1 && (a == player || b == player))
+            //    {
+            //        char letterA = a.letter;
+            //        a.letter = b.letter;
+            //        b.letter = letterA;
+            //        //chainWord[chainWord.Length-1] = 
+            //        //int combo = 0;
+            //        if (chainTiles.Count > 0)
+            //        {
+            //        Dictionary<int, Dictionary<string, WordData>> charcountTable = dictionary[chainTiles[0].letter];
+            //            chainWord = "";
+            //            int combo = 0;
+            //            for (int i = 0; i < chainTiles.Count; ++i)
+            //            {
+            //                chainWord += chainTiles[i].letter;
+            //                chainTiles[i].chain = 0;
+            //                if (charcountTable.ContainsKey(chainWord.Length))
+            //                {
+            //                    Dictionary<string, WordData> words = charcountTable[chainWord.Length];
+            //                    if (words.ContainsKey(chainWord))
+            //                    {
+            //                        combo++;
+            //                        for (int j = i; j >= 0; --j)
+            //                        {
+            //                            chainTiles[j].chain++;
+            //                        }
+            //                    }
+            //                }
+            //            }
+            //            currentCombo = combo;
+            //        }
+            //    }
 
-            }
+            //}
             //update player
             if (collectionTiles.Count == 0 && !movesExhausted)
             {
@@ -796,6 +806,19 @@ namespace MknGames.Rogue_Words
             }
             return result;
         }
+        public void ReshuffleLetters()
+        {
+            for(int i = 0; i < playerMoves.Length;++i)
+            {
+                var move = playerMoves[i];
+                move.X += playerX;
+                move.Y += playerY;
+                if(!invalidMove(move.X,move.Y))
+                {
+                    boardTiles[move.X, move.Y].visible = false;
+                }
+            }
+        }
 
         private void OnPostTileCollected(object v, EventArgs eventArgs)
         {
@@ -1033,6 +1056,9 @@ namespace MknGames.Rogue_Words
             {
                 rwg.activeScreen = parentScreen;
             }
+
+            upperMiddleRect = Split_Screen_Dungeon.Backpack.percentagef(middleRect, 0, 0, 1, 2f / 3f);
+            chainWordRect = game1.CalculateTextContainer(game1.defaultLargerFont, chainWord, upperMiddleRect, monochrome(1), new Vector2(0.5f), true);
         }
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
@@ -1054,92 +1080,95 @@ namespace MknGames.Rogue_Words
 
             // draw board
             // draw tiles
-            Vector2[] tileCorners = new Vector2[4] {
+            if (false)
+            {
+                Vector2[] tileCorners = new Vector2[4] {
                 Vector2.Normalize(new Vector2(-1,-1)),
                 Vector2.Normalize(new Vector2(1,-1)),
                 Vector2.Normalize(new Vector2(1,1)),
                 Vector2.Normalize(new Vector2(-1,1))
             };
-            Vector2[] tileSides = new Vector2[4] {
+                Vector2[] tileSides = new Vector2[4] {
                 Vector2.Normalize(new Vector2(-1,0)),
                 Vector2.Normalize(new Vector2(1,0)),
                 Vector2.Normalize(new Vector2(0,1)),
                 Vector2.Normalize(new Vector2(0,-1))
             };
-            for (int x = 0; x < mapW; ++x)
-            {
-                for (int y = 0; y < mapH; ++y)
+                for (int x = 0; x < mapW; ++x)
                 {
-                    Tile T = boardTiles[x, y];
-                    Color bg = monochrome(0);
-                    Color fg = monochrome(0.5f);
-                    bool drawInfo = false;
-                    bool drawRoundedSquare = false;
-                    bool drawFrame = false;
-                    if (T.chain > -1)
+                    for (int y = 0; y < mapH; ++y)
                     {
-                        if (T.chain < chainColors.Length)
-                            bg = chainColors[T.chain];
-                        else
-                            bg = Color.Magenta;
-                        fg = monochrome(1);
-                        drawInfo = true;
-                        drawFrame = true;
-                    }
-                    else
-                    {
-                        if (T.consumed || T.visible)
+                        Tile T = boardTiles[x, y];
+                        Color bg = monochrome(0);
+                        Color fg = monochrome(0.5f);
+                        bool drawInfo = false;
+                        bool drawRoundedSquare = false;
+                        bool drawFrame = false;
+                        if (T.chain > -1)
                         {
-                            drawInfo = true;
-                            if (T.consumed)
-                            {
-                                drawFrame = true;
-                                drawInfo = false;
-                            }
+                            if (T.chain < chainColors.Length)
+                                bg = chainColors[T.chain];
                             else
-                                drawRoundedSquare = true;
+                                bg = Color.Magenta;
+                            fg = monochrome(1);
+                            drawInfo = true;
+                            drawFrame = true;
                         }
-                        if (T.visible && !T.consumed)
+                        else
                         {
-                            bg = monochrome(0.5f);
-                            fg = monochrome(1.0f);
+                            if (T.consumed || T.visible)
+                            {
+                                drawInfo = true;
+                                if (T.consumed)
+                                {
+                                    drawFrame = true;
+                                    drawInfo = false;
+                                }
+                                else
+                                    drawRoundedSquare = true;
+                            }
+                            if (T.visible && !T.consumed)
+                            {
+                                bg = monochrome(0.5f);
+                                fg = monochrome(1.0f);
+                            }
                         }
-                    }
-                    // draw tile
-                    Vector2 pos = T.position;
-                    Vector2 tileSize = new Vector2(tileW, tileH);
-                    if (drawRoundedSquare)
-                    {
-                        game1.drawSquare(pos, monochrome(0), 0, tileW, tileH);
-                        float radius = tileW / 8;
-                        float diagonal = ((tileSize / 2) - new Vector2(radius)).Length();
-                        for (int i = 0; i < tileCorners.Length; ++i)
+                        // draw tile
+                        Vector2 pos = T.position;
+                        Vector2 tileSize = new Vector2(tileW, tileH);
+                        if (drawRoundedSquare)
                         {
-                            game1.drawCircleCentered(pos + tileCorners[i] * diagonal, new Vector2(radius, radius) * 2, bg);
+                            game1.drawSquare(pos, monochrome(0), 0, tileW, tileH);
+                            float radius = tileW / 8;
+                            float diagonal = ((tileSize / 2) - new Vector2(radius)).Length();
+                            for (int i = 0; i < tileCorners.Length; ++i)
+                            {
+                                game1.drawCircleCentered(pos + tileCorners[i] * diagonal, new Vector2(radius, radius) * 2, bg);
+                            }
+                            game1.drawSquare(pos, bg, 0, tileW - radius * 2, tileH);
+                            game1.drawSquare(pos, bg, 0, tileW, tileH - radius * 2);
                         }
-                        game1.drawSquare(pos, bg, 0, tileW - radius * 2, tileH);
-                        game1.drawSquare(pos, bg, 0, tileW, tileH - radius * 2);
-                    }
-                    else
-                    {
-                        game1.drawSquare(pos, bg, 0, tileW, tileH);
-                    }
-                    if (drawFrame)
-                    {
-                        game1.drawFrame(pos, fg, tileW, tileH, 1);
-                    }
-                    if (drawInfo)
-                    {
-                        //draw value
-                        Rectangle ra = Split_Screen_Dungeon.Backpack.percentage(T.rect, 0.1f, .6f, 1, .4f);
-                        game1.drawString(game1.defaultLargerFont, "" + T.value, ra, fg, new Vector2(0, 1), true);
+                        else
+                        {
+                            game1.drawSquare(pos, bg, 0, tileW, tileH);
+                        }
+                        if (drawFrame)
+                        {
+                            game1.drawFrame(pos, fg, tileW, tileH, 1);
+                        }
+                        if (drawInfo)
+                        {
+                            //draw value
+                            Rectangle ra = Split_Screen_Dungeon.Backpack.percentage(T.rect, 0.1f, .6f, 1, .4f);
+                            game1.drawString(game1.defaultLargerFont, "" + T.value, ra, fg, new Vector2(0, 1), true);
 
-                        //draw letter
-                        Rectangle rb = Split_Screen_Dungeon.Backpack.percentage(T.rect, 0, 0, 1, 3f / 4f);
-                        char letter = T.letter;
-                        //if (T != chainTiles[0])
-                        //    letter = char.ToLower(letter);
-                        game1.drawString(game1.defaultLargerFont, "" + letter, rb.Size.ToVector2(), rb.Location.ToVector2(), fg, new Vector2(0.5f), true);
+                            //draw letter
+                            Rectangle rb = Split_Screen_Dungeon.Backpack.percentage(T.rect, 0, 0, 1, 3f / 4f);
+                            char letter = T.letter;
+                            //if (T != chainTiles[0])
+                            //    letter = char.ToLower(letter);
+                            game1.drawString(game1.defaultLargerFont, "" + letter, rb.Size.ToVector2(), rb.Location.ToVector2(), fg, new Vector2(0.5f), true);
+                        }
                     }
                 }
             }
@@ -1193,16 +1222,14 @@ namespace MknGames.Rogue_Words
             game1.drawStringf(game1.defaultLargerFont, "back", returnBtn, monochrome(1.0f), new Vector2(0.5f), true, 1);
 
             // draw chain word
-            Rectf mra = Split_Screen_Dungeon.Backpack.percentagef(middleRect, 0, 0, 1, 2f / 3f);
             //Rectangle innermra = Split_Screen_Dungeon.Backpack.percentage(mra, 0.05f,0.05f,0.9f,0.9f);
             {
-                Rectf r = game1.CalculateTextContainer(game1.defaultLargerFont, chainWord, mra, monochrome(1), new Vector2(0.5f), true);
-                game1.drawSquare(r, monochrome(0), 0);
-                game1.drawStringf(game1.defaultLargerFont, chainWord, r, monochrome(1), new Vector2(0.5f), true);
+                game1.drawSquare(chainWordRect, monochrome(0), 0);
+                game1.drawStringf(game1.defaultLargerFont, chainWord, chainWordRect, monochrome(1), new Vector2(0.5f), true);
             }
             Rectf mrb = middleRect;
-            mrb.Height -= mra.Height;
-            mrb.Y += mra.Height;
+            mrb.Height -= upperMiddleRect.Height;
+            mrb.Y += upperMiddleRect.Height;
 
             if (drawDiscoveredWordsFlag)
             {
@@ -1221,7 +1248,7 @@ namespace MknGames.Rogue_Words
             // draw alert
                 Rectangle alertr = Split_Screen_Dungeon.Backpack.percentage(ViewportRect, 0, 0.1f, 1, 0.05f);
             string alertText = "";
-            if (noMoreWordsElapsed <= noMoreWordsDuration)
+            if (noMoreWordsElapsed <= noMoreWordsDuration && drawNoMoreWordsFlag)
             {
                 alertText += "NO MORE WORDS";
                 //alertr.Width = (int)mapSize.X;
@@ -1241,8 +1268,10 @@ namespace MknGames.Rogue_Words
             game1.drawFrame(alertr, monochrome(0.5f), 1);
             game1.drawString(game1.defaultLargerFont, alertText, alertr, monochrome(1.0f), new Vector2(0.5f), true);
 
+            game1.spriteBatch.End();
+            Draw3DBoard.Draw(this, gameTime);
+            game1.spriteBatch.Begin();
             gameMode.OnDraw();
-            //Draw3DBoard.Draw(this);
             //{
             //    var bsc = this;
             //    var sb = game1.spriteBatch;

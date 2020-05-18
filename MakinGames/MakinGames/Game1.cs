@@ -72,6 +72,8 @@ namespace MknGames
         public Color clearColor = Color.Black;
         public bool enableEscapeKeyToQuit = true;
 
+        public Action HandleBackButton;
+
         //FUNKY VARIABLES (BEGIN)
         public Dictionary<object, object> funkyVariables = new Dictionary<object, object>();
         public bool TryAddFunkyVariable<K, V>(K key, V value)
@@ -112,6 +114,7 @@ namespace MknGames
             {
                 keyInfos.Add((Keys)val, new KeyInfo());
             }
+            HandleBackButton = () => { Exit(); };
             //Components.Add(new RotateScaleAndMatchGame(this));
             //Components.Add(new SteerCollectSurviveGame(this)); //NOTE: Enjoyable this could be expanded upon, but there is not much variety.
             //Components.Add(new RotatePositionScaleAndMatchGame(this));
@@ -224,7 +227,9 @@ namespace MknGames
             if (enableEscapeKeyToQuit && (
                 GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 )
-                Exit();
+            {
+                HandleBackButton();
+            }
 
             keyOld = keyCurrent;
             mouseOld = mouseCurrent;

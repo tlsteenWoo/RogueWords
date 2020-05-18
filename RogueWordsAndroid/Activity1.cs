@@ -4,14 +4,13 @@ using Android.OS;
 using Android.Views;
 using MknGames;
 using MknGames.Rogue_Words;
-using RogueWordsBase.Rogue_Words;
 using System;
 
 namespace RogueWordsAndroid
 {
-    [Activity(Label = "RogueWordsAndroid"
+    [Activity(Label = "Rogue Words"
         , MainLauncher = true
-        , Icon = "@drawable/icon"
+        , Icon = "@drawable/myicon"
         , Theme = "@style/Theme.Splash"
         , AlwaysRetainTaskState = true
         , LaunchMode = Android.Content.PM.LaunchMode.SingleInstance
@@ -27,7 +26,18 @@ namespace RogueWordsAndroid
                 return this.Assets.Open(path);
             };
             var g = new GameMG();
-            g.Components.Add(new RogueWordsGame(g));
+            RogueWordsGame game = new RogueWordsGame(g, true);
+            g.HandleBackButton = () =>
+            {
+                if(game.activeScreen == game.menuScreen)
+                {
+                    MoveTaskToBack(true);
+                }else if(game.activeScreen == game.menuScreen.board)
+                {
+                    game.activeScreen = game.menuScreen.board.parentScreen;
+                }
+            };
+            g.Components.Add(game);
             SetContentView((View)g.Services.GetService(typeof(View)));
             g.Run();
         }

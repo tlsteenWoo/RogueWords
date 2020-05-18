@@ -16,7 +16,7 @@ namespace RogueWords
         {
             using (var game = new GameMG())
             {
-                game.Components.Add(new RogueWordsGame(game));
+                game.Components.Add(new RogueWordsGame(game, false));
                 game.Run();
             }
         }

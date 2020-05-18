@@ -62,13 +62,13 @@
     <Compile Include="RogueWords\Draw3DBoard.cs" />
     <Compile Include="RogueWords\GameModes\LinearGameMode.cs" />
     <Compile Include="RogueWords\GameModes\QuestGameMode.cs" />
+    <Compile Include="RogueWords\GameModes\RogueWordsGameMode.cs" />
     <Compile Include="RogueWords\MainMenuScreenClassic.cs" />
     <Compile Include="RogueWords\MenuScreen.cs" />
     <Compile Include="RogueWords\PlayScreenClassic.cs" />
     <Compile Include="RogueWords\RogueGameMode.cs" />
     <Compile Include="RogueWords\RogueWordBrain.cs" />
     <Compile Include="RogueWords\RogueWordsGame.cs" />
-    <Compile Include="RogueWords\RogueWordsGameMG.cs" />
     <Compile Include="RogueWords\RogueWordsScreen.cs" />
     <Compile Include="RogueWords\Tile.cs" />
     <Compile Include="RogueWords\WordListProcessor.cs" />

@@ -11,16 +11,25 @@ using System.Threading.Tasks;
 
 namespace WordFrequencyGenerator
 {
+    class WordData
+    {
+        public int wikiFrequency;
+        public int baiduFrequency;
+    }
     class Program
     {
         static int[] common = { 1, 2, 5, 10, 15 };
         static Dictionary<int, List<string>> commonWords = new Dictionary<int, List<string>>();
         static bool resetFrequency = false;
+        static bool resetBaidu = false;
         static int pageCount = 0;
         static int maxFrequency = 0;
+        static int baiduPageCount = 0;
         static double elapsed;
+        static TimeSpan elapsedTimeSpan;
         static string directory = "C:/Users/tlawr/Documents/GitHub/RogueWords/RogueWordsDesktop/bin/Debug Desktop/RogueWords/";
-        static Dictionary<char, Dictionary<int, Dictionary<string,int>>> wordTable = new Dictionary<char, Dictionary<int, Dictionary<string,int>>>();
+        static Dictionary<char, Dictionary<int, Dictionary<string,WordData>>> wordTable = new Dictionary<char, Dictionary<int, Dictionary<string,WordData>>>();
+        private static string googleOperatingWord = "A";
 
         static double pagesPerSecond
         {
@@ -63,12 +72,15 @@ namespace WordFrequencyGenerator
                     var frequency = 0;
                     if(!resetFrequency && tokens.Length > 1)
                         frequency = int.Parse(tokens[1]);
+                    var baiduFrequency = 0;
+                    if (tokens.Length > 2)
+                        baiduFrequency = int.Parse(tokens[2]);
                     maxFrequency = Math.Max(frequency, maxFrequency);
                     if (!wordTable.ContainsKey(word[0]))
-                        wordTable.Add(word[0], new Dictionary<int, Dictionary<string, int>>());
+                        wordTable.Add(word[0], new Dictionary<int, Dictionary<string, WordData>>());
                     if (!wordTable[word[0]].ContainsKey(word.Length))
-                        wordTable[word[0]].Add(word.Length, new Dictionary<string, int>());
-                    wordTable[word[0]][word.Length].Add(word, frequency);
+                        wordTable[word[0]].Add(word.Length, new Dictionary<string, WordData>());
+                    wordTable[word[0]][word.Length].Add(word, new WordData() { wikiFrequency = frequency, baiduFrequency = baiduFrequency });
                     EvaluateCommon(word, frequency);
                 }
             }
@@ -86,7 +98,7 @@ namespace WordFrequencyGenerator
                         var strings = chars[length];
                         foreach(var stringInt in strings)
                         {
-                            writer.WriteLine(stringInt.Key + "," + stringInt.Value);
+                            writer.WriteLine(stringInt.Key + "," + stringInt.Value.wikiFrequency + "," + stringInt.Value.baiduFrequency);
                         }
                     }
                 }
@@ -104,9 +116,26 @@ namespace WordFrequencyGenerator
             var wordCount = wordTable[word[0]][word.Length];
             if (!wordCount.ContainsKey(word))
                 return false;
-            int frequency = wordCount[word] + 1;
-            wordCount[word] = frequency;
+            int frequency = wordCount[word].wikiFrequency + 1;
+            wordCount[word].wikiFrequency = frequency;
             if(frequency > maxFrequency)
+            {
+                maxFrequency = frequency;
+                Console.WriteLine("Max Frequency:" + maxFrequency);
+            }
+            return true;
+        }
+        static bool SetWordFrequency(string word, int frequency)
+        {
+            if (!wordTable.ContainsKey(word[0]))
+                return false;
+            if (!wordTable[word[0]].ContainsKey(word.Length))
+                return false;
+            var wordCount = wordTable[word[0]][word.Length];
+            if (!wordCount.ContainsKey(word))
+                return false;
+            wordCount[word].baiduFrequency = frequency;
+            if (frequency > maxFrequency)
             {
                 maxFrequency = frequency;
                 Console.WriteLine("Max Frequency:" + maxFrequency);
@@ -145,6 +174,60 @@ namespace WordFrequencyGenerator
             }
             pageCount++;
         }
+        static void LoadGooglePages(string word)
+        {
+            WebRequest request = WebRequest.Create("https://www.baidu.com/s?wd=" + word);
+            WebResponse response = request.GetResponse();
+            Stream data = response.GetResponseStream();
+            Console.WriteLine("Web Request: " + response.ResponseUri);
+            string html = String.Empty;
+            using (StreamReader sr = new StreamReader(data))
+            {
+                try
+                {
+                    html = sr.ReadToEnd();
+                }catch(Exception e)
+                {
+                    Console.WriteLine(e);
+                    //Debugger.Break();
+                    sr.Close();
+                }
+            }
+            HtmlDocument document = new HtmlDocument();
+            document.LoadHtml(html);
+            //HtmlNode node = document.DocumentNode.SelectSingleNode("//*[@id=\"result-stats\"]");
+            var nodes = document.DocumentNode.SelectNodes("//span[contains(@class, 'nums_text')]");
+            //if (nodes.Count > 1 || nodes.Count == 0)
+            //    Debugger.Break();
+            //var children = nodes[0].ChildNodes;
+            //string text = string.Empty;
+            Console.WriteLine(nodes[0].InnerHtml);
+            string numberText = string.Empty;
+            foreach(char c in nodes[0].InnerHtml)
+            {
+                if(char.IsNumber(c))
+                {
+                    numberText += c;
+                }
+            }
+            int number = int.Parse(numberText);
+            SetWordFrequency(word, number);
+        }
+        static void LoadGooglePlace()
+        {
+            if (!File.Exists("save.txt")) return;
+            using (StreamReader reader = new StreamReader(File.OpenRead("save.txt")))
+            {
+                googleOperatingWord = reader.ReadLine();
+            }
+        }
+        static void SaveGooglePlace()
+        {
+            using (StreamWriter writer = new StreamWriter(File.Create("save.txt")))
+            {
+                writer.WriteLine(googleOperatingWord);
+            }
+        }
         static void Main(string[] args)
         {
             LoadWords();
@@ -152,19 +235,54 @@ namespace WordFrequencyGenerator
             Thread thread = new Thread(() =>
             {
                 Stopwatch watch = new Stopwatch();
-                while (true)
+                //while (true)
+                //{
+                //    watch.Start();
+                //    LoadRandomPage();
+                //    watch.Stop();
+                //    watch.Reset();
+                //    elapsed += watch.Elapsed.TotalSeconds;
+                //}
+                if(!resetBaidu)
+                    LoadGooglePlace();
+                bool start = true;
+                int startc = (int)(googleOperatingWord[0])-65;
+                int startl = googleOperatingWord.Length;
+                for(int c = start ? startc : 0; c < 26; ++c)
                 {
-                    watch.Start();
-                    LoadRandomPage();
-                    watch.Stop();
-                    watch.Reset();
-                    elapsed += watch.Elapsed.TotalSeconds;
+                    char letter = (char)(c + 65);
+                    if (!wordTable.ContainsKey(letter))
+                        continue;
+                    for(int l = start ? startl : 0; l < 20;++l)
+                    {
+                        if (!wordTable[letter].ContainsKey(l))
+                            continue;
+                        var stringInt = wordTable[letter][l];
+                        int starti = -1;
+                        if(start)
+                            starti = Array.IndexOf(stringInt.Keys.ToArray(), googleOperatingWord);
+                        for (int i = start ? starti : 0; i < stringInt.Keys.Count; ++i)
+                        {
+                        watch.Start();
+                            googleOperatingWord = stringInt.Keys.ElementAt(i);
+                            LoadGooglePages(googleOperatingWord);
+                            baiduPageCount++;
+                            start = false;
+                            watch.Stop();
+                            elapsedTimeSpan += watch.Elapsed;
+                            Console.WriteLine("Total: {0}", elapsedTimeSpan);
+                            Console.WriteLine("Frame: {0}", watch.Elapsed);
+                            Console.WriteLine("Pages Per Minute: {0}", baiduPageCount / elapsedTimeSpan.TotalMinutes);
+                            watch.Reset();
+                        }
+                    }
                 }
             });
             thread.Start();
             var key = Console.ReadKey();
-            thread.Abort();
             WriteWords();
+            SaveGooglePlace();
+            thread.Abort();
             int n = 0;
         }
     }

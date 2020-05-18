@@ -53,43 +53,45 @@ namespace MknGames.Rogue_Words
         public override void LoadContent()
         {
             base.LoadContent();
-#if true
-            //viewportFull = new Viewport(0,0,395, 702);
-            //game1.graphics.PreferredBackBufferWidth = viewportFull.Width;
-            //game1.graphics.PreferredBackBufferHeight = viewportFull.Height;
-            game1.Window.AllowUserResizing = true;
-            //game1.graphics.PreferredBackBufferWidth = 395;
-            //game1.graphics.PreferredBackBufferHeight = 702;
-            //game1.graphics.PreferredBackBufferWidth = 1200;
-            //game1.graphics.PreferredBackBufferHeight = 2500;
-            int pbbw = 395;
-            int pbbh = 702;
-            game1.graphics.IsFullScreen = false;
+            if (rwg.isDesktop)
             {
-                float desiredHeight = GraphicsDevice.DisplayMode.TitleSafeArea.Height - 200;
-                //galaxy s6: 1440 x 2560
-                //nexus 10: 2560 x 1600
-                //64.5" sony KD-65ZD9: 3840x2160
-                //Tagital t6 watch: 240x240
-                float resX = 2560;
-                float resY = 1600;
-                float ratio = Math.Min(1, desiredHeight / resY);
-                pbbw = (int)(resX * ratio);
-                pbbh = (int)(resY * ratio);
+                //viewportFull = new Viewport(0,0,395, 702);
+                //game1.graphics.PreferredBackBufferWidth = viewportFull.Width;
+                //game1.graphics.PreferredBackBufferHeight = viewportFull.Height;
+                game1.Window.AllowUserResizing = true;
+                //game1.graphics.PreferredBackBufferWidth = 395;
+                //game1.graphics.PreferredBackBufferHeight = 702;
+                //game1.graphics.PreferredBackBufferWidth = 1200;
+                //game1.graphics.PreferredBackBufferHeight = 2500;
+                int pbbw = 395;
+                int pbbh = 702;
+                game1.graphics.IsFullScreen = false;
+                {
+                    float desiredHeight = GraphicsDevice.DisplayMode.TitleSafeArea.Height - 500;
+                    //galaxy s6: 1440 x 2560
+                    //nexus 10: 2560 x 1600
+                    //64.5" sony KD-65ZD9: 3840x2160
+                    //Tagital t6 watch: 240x240
+                    float resX = 2560;
+                    float resY = 1600;
+                    float ratio = Math.Min(1, desiredHeight / resY);
+                    pbbw = (int)(resX * ratio);
+                    pbbh = (int)(resY * ratio);
+                }
+                game1.graphics.PreferredBackBufferHeight = pbbh;
+                game1.graphics.PreferredBackBufferWidth = pbbw;
+                game1.IsMouseVisible = true;
+                game1.graphics.ApplyChanges();
             }
-            game1.graphics.PreferredBackBufferHeight = pbbh;
-            game1.graphics.PreferredBackBufferWidth = pbbw;
-            game1.IsMouseVisible = true;
-            game1.graphics.ApplyChanges();
-#else
-            game1.graphics.IsFullScreen = true;
-            //graphics.PreferredBackBufferWidth = 800;
-            //graphics.PreferredBackBufferHeight = 480;
-            game1.graphics.SupportedOrientations = DisplayOrientation.LandscapeLeft | DisplayOrientation.LandscapeRight | DisplayOrientation.Portrait;
-            game1.graphics.PreferredBackBufferWidth = GraphicsDevice.DisplayMode.TitleSafeArea.Width;
-            game1.graphics.PreferredBackBufferHeight = GraphicsDevice.DisplayMode.TitleSafeArea.Height;
-            game1.graphics.ApplyChanges();
-#endif
+            else {
+                //game1.graphics.IsFullScreen = true;
+                //graphics.PreferredBackBufferWidth = 800;
+                //graphics.PreferredBackBufferHeight = 480;
+                //game1.graphics.SupportedOrientations = DisplayOrientation.LandscapeLeft | DisplayOrientation.LandscapeRight | DisplayOrientation.Portrait;
+                //game1.graphics.PreferredBackBufferWidth = GraphicsDevice.DisplayMode.TitleSafeArea.Width;
+                //game1.graphics.PreferredBackBufferHeight = GraphicsDevice.DisplayMode.TitleSafeArea.Height;
+                //game1.graphics.ApplyChanges();
+            }
         }
 
         public override void OnBackPressed()
@@ -165,11 +167,11 @@ namespace MknGames.Rogue_Words
                 //board.playerDeadline = 0;
                 rwg.activeScreen = board;
             }
-            if (Banner(6).Contains(pointer()) && pointerTap())
-            {
-                custom.LoadContent();
-                rwg.activeScreen = custom;
-            }
+            //if (Banner(6).Contains(pointer()) && pointerTap())
+            //{
+            //    custom.LoadContent();
+            //    rwg.activeScreen = custom;
+            //}
             if (/*!dialogDrawing && */Banner(7).Contains(pointer()) && pointerTap())
             {
                 drawCredits = true;
@@ -214,87 +216,89 @@ namespace MknGames.Rogue_Words
             //draw difficulty
             Rectangle difficultyRect = Banner(2);
             Rectangle dra = Backpack.percentage(difficultyRect, 0.05f, 0, 1, 1f / 3f);
-            game1.drawString(game1.defaultLargerFont, "Difficulty", dra, monochrome(1.0f), Vector2.Zero, true);
-            Rectangle drb = Backpack.percentage(difficultyRect, 0.10f, 1f / 3f, 1f/5f, 2f / 3f);
-            drb.Width = drb.Height*2;
-            game1.drawSquare(drb, monochrome(0.8f), 0);
-            Rectangle drbtxt = Backpack.percentage(drb, 0.1f, 0.3f, 0.8f, 0.4f);
-            game1.drawString(game1.defaultLargerFont, difficultyNames[difficulty], drbtxt, monochrome(0.0f), new Vector2(0.5f, 0.5f), true);
-            if(pointerTap() && drb.Contains(pointer()))
-            {
-                difficulty = (difficulty + 1 ) % difficultyNames.Length;
-            }
+            //game1.drawString(game1.defaultLargerFont, "Difficulty", dra, monochrome(1.0f), Vector2.Zero, true);
+            //Rectangle drb = Backpack.percentage(difficultyRect, 0.10f, 1f / 3f, 1f/5f, 2f / 3f);
+            //drb.Width = drb.Height*2;
+            //game1.drawSquare(drb, monochrome(0.8f), 0);
+            //Rectangle drbtxt = Backpack.percentage(drb, 0.1f, 0.3f, 0.8f, 0.4f);
+            //game1.drawString(game1.defaultLargerFont, difficultyNames[difficulty], drbtxt, monochrome(0.0f), new Vector2(0.5f, 0.5f), true);
+            //if(pointerTap() && drb.Contains(pointer()))
+            //{
+            //    difficulty = (difficulty + 1 ) % difficultyNames.Length;
+            //}
 
             //draw board sizes
             Rectangle boardRect = Banner(3);
             boardRect.Height *= 2;
             Rectangle bra = Backpack.percentage(boardRect, 0.05f, 0, 1, 1f / 6f);
-            game1.drawString(game1.defaultLargerFont, "Board Size", bra, monochrome(1.0f), Vector2.Zero, true);
-            Rectangle brb = Backpack.percentage(boardRect, 0.10f, 1f/6f, 1, 5f / 6f);
-            float greyv = 0.5f;
-            float darkv = 0.2f;
-            for(float i = 0; i < 3; ++i)
-            {
-                Rectangle r = Backpack.percentage(brb, 0, i / 3f, 1, 1f / 3f);
-                Rectf btn = Backpack.percentagef(r, 0, .1f, .8f, .8f);
-                btn.Width = btn.Height;
-                //Color btnc = i == selected ? Color.Green : monochrome(0.8f);
-                Color btnc = monochrome(0.8f);
-                if(i == boardSize)
-                {
-                    btnc = Color.Green;
-                }
-                Vector2 btnPos = new Vector2(btn.X, btn.Y);
-                Vector2 btnCenter = btnPos + new Vector2(btn.Width, btn.Height) / 2;
-                float btnRadius = btn.Width / 2;
-                game1.drawNgon(btnCenter, monochrome(greyv, 0.9f), 0, 36, btnRadius, 1);
-                Rectf btnInner = Backpack.percentagef(btn, 0.1f, 0.1f, 0.8f, 0.8f);
-                Rectf btnInner2 = Backpack.percentagef(btnInner, 0.25f, 0.25f, 0.5f, 0.5f);
-                game1.drawCircle(btnInner, monochrome(darkv));
-                //game1.drawSquare(btnInner2, btnc, 0);
-                game1.drawCircle(btnInner2, btnc);
-                Vector2 btn2ptr = pointer() - btnCenter;
-                if (pointerTap() && btn2ptr.LengthSquared() < btnRadius * btnRadius)
-                {
-                    boardSize = (int)i;
-                }
-                Rectf lbl = Backpack.percentagef(r, 0.3f, 0, .7f, 1);
-                lbl.X = btn.X + btn.Width;
-                string txt = i == 0 ? "Small" : i == 1 ? "Medium" : "Large";
-                //string txt = boardNames[(int)i];
-                game1.drawStringf(game1.defaultLargerFont,txt, lbl, monochrome(1), new Vector2(0.1f,0.5f), true, 0.6f);
-            }
+            //game1.drawString(game1.defaultLargerFont, "Board Size", bra, monochrome(1.0f), Vector2.Zero, true);
+            //Rectangle brb = Backpack.percentage(boardRect, 0.10f, 1f/6f, 1, 5f / 6f);
+            //float greyv = 0.5f;
+            //float darkv = 0.2f;
+            //for(float i = 0; i < 3; ++i)
+            //{
+            //    Rectangle r = Backpack.percentage(brb, 0, i / 3f, 1, 1f / 3f);
+            //    Rectf btn = Backpack.percentagef(r, 0, .1f, .8f, .8f);
+            //    btn.Width = btn.Height;
+            //    //Color btnc = i == selected ? Color.Green : monochrome(0.8f);
+            //    Color btnc = monochrome(0.8f);
+            //    if(i == boardSize)
+            //    {
+            //        btnc = Color.Green;
+            //    }
+            //    Vector2 btnPos = new Vector2(btn.X, btn.Y);
+            //    Vector2 btnCenter = btnPos + new Vector2(btn.Width, btn.Height) / 2;
+            //    float btnRadius = btn.Width / 2;
+            //    game1.drawNgon(btnCenter, monochrome(greyv, 0.9f), 0, 36, btnRadius, 1);
+            //    Rectf btnInner = Backpack.percentagef(btn, 0.1f, 0.1f, 0.8f, 0.8f);
+            //    Rectf btnInner2 = Backpack.percentagef(btnInner, 0.25f, 0.25f, 0.5f, 0.5f);
+            //    game1.drawCircle(btnInner, monochrome(darkv));
+            //    //game1.drawSquare(btnInner2, btnc, 0);
+            //    game1.drawCircle(btnInner2, btnc);
+            //    Vector2 btn2ptr = pointer() - btnCenter;
+            //    if (pointerTap() && btn2ptr.LengthSquared() < btnRadius * btnRadius)
+            //    {
+            //        boardSize = (int)i;
+            //    }
+            //    Rectf lbl = Backpack.percentagef(r, 0.3f, 0, .7f, 1);
+            //    lbl.X = btn.X + btn.Width;
+            //    string txt = i == 0 ? "Small" : i == 1 ? "Medium" : "Large";
+            //    //string txt = boardNames[(int)i];
+            //    game1.drawStringf(game1.defaultLargerFont,txt, lbl, monochrome(1), new Vector2(0.1f,0.5f), true, 0.6f);
+            //}
             DrawBanner("How To Play", 5);
             if(!drawHowToPlay && Banner(5).Contains(pointer()) && pointerTap())
             {
                 drawHowToPlay = true;
             }
-            DrawBanner("Customize", 6);
+            //DrawBanner("Customize", 6);
             DrawBanner("Credits", 7);
             if (drawHowToPlay && Dialog("How To Play",
 @"
 1. Make words 
 by tapping letters.
 
-The goal is to make 
-interesting words.
+You can tap the tile you're standing on
+to reshuffle the letters around you. (3 per turn)
+
+When ready tap the word
+at the top of the screen to
+submit your entry.
+
 You have to think 
 on your feet,
 try to make the word 
 you are thinking of,
 but be prepared for 
 some unexpected letters.
+
+The Game will help make *a* word
+but maybe not the one you expect.
+
 Many words have plural 
 so add 's' to the end,
 also look for do'ing' 
-and do'er's.
-
-2. Swap letters by 
-swiping (difficult).
-
-Try very easy mode 
-if you are having 
-trouble.", "OK"))
+and do'er's.", "OK"))
             {
                 drawHowToPlay = false;
             }
